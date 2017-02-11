@@ -7,3 +7,7 @@ STATE_WAIT_FOR_FIX_CHINESE = 'wait_for_fix_chinese'
 STATE_WAIT_FOR_FIX_ENGLISH = 'wait_for_fix_english'
 STATE_En2ZhTw_IS_CALLED = 'en_to_zhtw_is_called'
 STATE_ZhTw2En_IS_CALLED = 'zhtw_to_en_is_called'
+
+
+#MSG_HANDLER_COMPLETE = 'OK'
+#MSG_HANDLER_REJECT = 'rejected'
