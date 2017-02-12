@@ -53,7 +53,7 @@ class EnglishToChineseIntentionBot(IntentionBot):
         if q is None:
             translated = self.ask_google_en_to_zh(s)
             return translated
-        print("search DB: %s <=> %s [%d]" % (q.english, q.chinese, q.hit_counts))
+        print("search DB: %s <=> %s [%d]" % (q.english, q.chinese, q.hit_counts or 0))
         return q.chinese
 
     def handle_message(self, msg, sender, state, msgbody):
@@ -87,7 +87,7 @@ class EnglishToChineseIntentionBot(IntentionBot):
                 db.session.add(q)
             else:
                 q.hit_counts += 1
-            print("update DB: %s <=> %s [%d]" % (q.english, q.chinese, q.hit_counts))
+            print("update DB: %s <=> %s [%d]" % (q.english, q.chinese, q.hit_counts or 0))
             db.session.commit()
             self.bot_send_message(sender, self.reply_gen.sticker('thank you'))
             return

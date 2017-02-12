@@ -25,7 +25,7 @@ class ChineseToEnglishIntentionBot(IntentionBot):
 
         if q is None:
             return None
-        print("search DB: %s <=> %s [%d]" % (q.english, q.chinese, q.hit_counts))
+        print("search DB: %s <=> %s [%d]" % (q.english, q.chinese, q.hit_counts or 0))
         return q.english
 
     def handle_message(self, msg, sender, state, msgbody):
