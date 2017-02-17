@@ -6,6 +6,7 @@
 /app/*.db
 /aafood-*.json
 /app/data/dict.txt.big
+/app/data/db_dump
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

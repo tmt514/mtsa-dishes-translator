@@ -2,11 +2,22 @@
 
 import sys
 import os
-if len(sys.argv) < 2:
-    print("Usage: db_reset/ celery/ test")
-    sys.exit(0)
 
-if sys.argv[1] == 'db_reset':
+
+def helper():
+    print("""[Usage]: ./run COMMAND
+
+    COMMAND:
+        db_reset  : 可以重置 db (注意！資料會被刪除！)
+        db_migrate: 把指定資料 dump 出來、db 重置、再把資料 migrate 上去
+        celery    : 啟動 celery workers
+        test      : 自動執行 AppTestCase 裡頭的 test
+        backup    : 把指定資料 dump 出來成文字檔
+    """)
+
+
+def db_reset():
+    """ 重置 db """
     import os
     try:
         os.remove("app/aafood.db")
@@ -16,14 +27,98 @@ if sys.argv[1] == 'db_reset':
     db.create_all()
     print("Reset Database Done!")
 
+
+
+def db_backup():
+    """ 資料庫備份: 備份到 app/data/db_dump """
+
+    # TODO: 其他資料表呢????
+
+    from app.models import db, Term
+    import json
+    dumpfile = open('app/data/db_dump', 'w')
+    # 備份 Terms
+    print("備份 Terms...", end="")
+    counter = 0
+    for term in Term.query.all():
+        d = term.as_dict()
+        d['__db'] = 'Term'
+        dumpfile.write(json.dumps(d) + "\n")
+        counter += 1
+    dumpfile.close()
+    print(" 共 %d 筆資料完成!" % (counter))
+
+    db.session.close()
+
+
+def db_load(filename='app/data/db_dump'):
+    """ 資料庫載入: 從指定檔案載入資料 """
+    
+    # TODO: 其他資料表呢????
+
+    from app.models import db, Term
+    import json
+    dumpfile = open(filename, 'r')
+    # 載入資料
+    print("載入資料中...")
+    counter = 0
+    for line in dumpfile:
+        d = json.loads(line)
+        if d['__db'] == 'Term':
+            if not Term.query.get(d['id']):
+                term = Term(id=d['id'],english=d['english'],chinese=d['chinese'],hit_counts=d['hit_counts'])
+                db.session.add(term)
+        counter += 1
+    db.session.commit()
+    print(" 共 %d 筆資料完成!" % (counter))
+    
+
+
+
+def db_migrate():
+    db_backup()
+    db_reset()
+    db_load()
+
+
+def run_tests():
+    """ 執行指定測試 """
+    import app.tests.test_app as test_app
+    import unittest
+    suite = unittest.TestLoader().loadTestsFromTestCase(test_app.AppTestCase)
+    unittest.TextTestRunner(verbosity=2).run(suite)
+    
+
+
+
+
+if len(sys.argv) < 2:
+    helper()
+    sys.exit(0)
+
+if sys.argv[1] == 'db_reset':
+    db_reset()
+    sys.exit(0)
+
+if sys.argv[1] == 'db_migrate':
+    db_migrate()
+    sys.exit(0)
+
 # 執行 Celery Instance
 if sys.argv[1] == 'celery':
     os.system("celery -A app.celery worker")
-
+    sys.exit(0)
 
 # 執行 Test
-import app.tests.test_app as test_app
-import unittest
 if sys.argv[1] == 'test':
-    suite = unittest.TestLoader().loadTestsFromTestCase(test_app.AppTestCase)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    run_tests()
+    sys.exit(0)
+
+# 執行資料庫備份
+if sys.argv[1] == 'backup':
+    db_backup()
+    sys.exit(0)
+
+
+helper()
+sys.exit(0)

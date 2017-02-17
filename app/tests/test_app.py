@@ -1,20 +1,23 @@
-import os
 from app.app import app
+from app.models import db, Term
 import unittest
-import tempfile
 
 class AppTestCase(unittest.TestCase):
+
     def setUp(self):
-        self.db_fd, app.config['DATABASE'] = tempfile.mkstemp()
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///aafood-test.db'
         app.config['TESTING'] = True
         self.app = app.test_client()
         with app.app_context():
-            app.init_db()
+            db.init_app(app)
+            db.create_all()
+            q = len(Term.query.all())
+            print(q)
 
     def tearDown(self):
-        os.close(self.db_fd)
-        os.unlink(app.config['DATABASE'])
+        db.session.remove()
+        db.drop_all()
 
     def test_assertion(self):
-        assert 10 + 10 == 3
+        assert 10 + 10 == 20
 
