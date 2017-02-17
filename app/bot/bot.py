@@ -10,6 +10,7 @@ from app.bot.intention_detector import IntentionDetector
 from app.bot.intention_bot import IntentionBot
 from app.bot.user_status import UserStatus
 
+import re
 class Bot:
     """ 處理一切訊息的那隻 Bot
         理論上 app 取得 request 以後就會丟到這裡。
@@ -54,6 +55,20 @@ class Bot:
 
         # 處理意圖
         intention_bot.handle_message(msg, sender, state, msgbody)
+
+
+    def handle_postback(self, msg, sender, payload):
+        """ 處理 postback 的函式。 """
+        state = UserStatus(sender)
+        p = re.match(r'([^:]*):(.*)', payload)
+        payload = p.group(1)
+        target = p.group(2)
+        
+
+        print("Handling payload: %s for target=%s" % (payload, target))
+        intention_bot = self.intention_detector.get_postback_intention_bot(sender, state, payload, target)
+
+        intention_bot.handle_message(msg, sender, state, {"payload": payload, "target": target})
 
 
 

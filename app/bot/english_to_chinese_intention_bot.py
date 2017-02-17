@@ -15,8 +15,9 @@ from app.bot.intention_bot import IntentionBot
 import enchant
 import mafan
 class EnglishToChineseIntentionBot(IntentionBot):
-    def __init__(self):
+    def __init__(self, target=None):
         super().__init__()
+        self.target = target
     
     def ask_google_en_to_zh(self, s):
         q = s + " wikipedia 中文"
@@ -86,10 +87,15 @@ class EnglishToChineseIntentionBot(IntentionBot):
                 q = Term(english=state.get_english(), chinese=state.get_chinese(), hit_counts=1)
                 db.session.add(q)
             else:
-                q.hit_counts += 1
+                q.hit_counts = (q.hit_counts+1 if q.hit_counts else 1)
             print("update DB: %s <=> %s [%d]" % (q.english, q.chinese, q.hit_counts or 0))
             db.session.commit()
             self.bot_send_message(sender, self.reply_gen.sticker('thank you'))
+            return
+        
+        # 判斷是否為「更多」選項
+        if payload == TMT_MORE:
+            self.bot_send_message(sender, self.reply_gen.ask_more(state))
             return
 
         # 如果是更新 FIX
@@ -108,6 +114,9 @@ class EnglishToChineseIntentionBot(IntentionBot):
         # 如果是一般詢問
         if 'text' in msgbody:
             msgtext = msgbody['text']
+            # 如果已有 self.target, 那麼就用 target
+            if self.target:
+                msgtext = self.target
 
             state.set_status(STATE_En2ZhTw_IS_CALLED)
             state.set_q(msgtext)

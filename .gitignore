@@ -1,3 +1,12 @@
+# VIM
+*.swp
+
+# app specified
+/app/secrets.py
+/app/*.db
+/aafood-*.json
+/app/data/dict.txt.big
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -5,9 +14,6 @@ __pycache__/
 
 # C extensions
 *.so
-
-/app/secrets.py
-/app/*.db
 
 # Distribution / packaging
 .Python

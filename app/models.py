@@ -18,4 +18,5 @@ class Term(db.Model):
             backref=db.backref('term',lazy='dynamic'))
     hit_counts = db.Column(db.Integer)
 
-
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}

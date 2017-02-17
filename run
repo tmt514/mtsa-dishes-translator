@@ -3,7 +3,7 @@
 import sys
 import os
 if len(sys.argv) < 2:
-    print("Usage: db_reset/ celery")
+    print("Usage: db_reset/ celery/ test")
     sys.exit(0)
 
 if sys.argv[1] == 'db_reset':
@@ -19,3 +19,11 @@ if sys.argv[1] == 'db_reset':
 # 執行 Celery Instance
 if sys.argv[1] == 'celery':
     os.system("celery -A app.celery worker")
+
+
+# 執行 Test
+import app.tests.test_app as test_app
+import unittest
+if sys.argv[1] == 'test':
+    suite = unittest.TestLoader().loadTestsFromTestCase(test_app.AppTestCase)
+    unittest.TextTestRunner(verbosity=2).run(suite)

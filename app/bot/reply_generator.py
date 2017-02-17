@@ -36,13 +36,51 @@ class ReplyGenerator:
                     },
                     {
                         "content_type": "text",
-                        "title": "我要校正",
-                        "payload": TMT_FIX_TRANSLATION
+                        "title": "校正",
+                        "payload": TMT_FIX_TRANSLATION,
+                        "image_url": "http://icons.iconarchive.com/icons/handdrawngoods/busy/128/pencil-icon.png"
                     },
                     {
                         "content_type": "text",
                         "title": "取消",
                         "payload": TMT_CANCEL
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "更多",
+                        "payload": TMT_MORE,
+                        "image_url": "https://image.flaticon.com/icons/png/128/60/60969.png"
                     }
                 ]
+            }
+
+    def ask_more(self, state):
+        """ 「想知道更多」的選項 """
+
+        # TODO: 圖片、食譜、哪裡買得到
+        return {
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "button",
+                        "text": "您想要知道什麼呢？",
+                        "buttons": [
+                            {
+                                "type": "postback",
+                                "title": "%s 的圖片" % (state.get_q()),
+                                "payload": TMT_PICTURE + ":" + state.get_q(),
+                            },
+                            {
+                                "type": "postback",
+                                "title": "%s 的食譜" % (state.get_q()),
+                                "payload": TMT_RECIPE + ":" + state.get_q(),
+                            },
+                            {
+                                "type": "postback",
+                                "title": "%s 在哪裡買得到" % (state.get_q()),
+                                "payload": TMT_WHERE_TO_BUY + ":" + state.get_q(),
+                            }
+                        ]
+                    }
+                }
             }

@@ -19,6 +19,7 @@ app.config['REDIS_URL'] = 'redis://localhost:6379/1'
 redis_store = FlaskRedis(app)
 
 
+
 @app.route('/')
 def index():
     return "OK"
@@ -42,11 +43,33 @@ bot = Bot(app)
 def celery_handle_message(msg, sender, msgbody):
     """ 背景作業：處理每一個傳進來的訊息 """
     with app.app_context():
-        # 先已讀
-        bot.intention_bot.bot_sender_action(sender, "mark_seen")
+        try:
+            # 先已讀
+            bot.intention_bot.bot_sender_action(sender, "mark_seen")
 
-        # 然後處理
-        bot.handle_message(msg, sender, msgbody)
+            # 然後處理
+            bot.handle_message(msg, sender, msgbody)
+        except Exception as e:
+            print(e)
+
+            # 後台炸裂, 跟使用者說抱歉
+            bot.intention_bot.bot_send_message(sender, {"text": "對不起，系統炸了OAQ，請聯絡管理員 :S"})
+
+@celery.task
+def celery_handle_postback(msg, sender, payload):
+    with app.app_context():
+        try:
+            # 先已讀
+            bot.intention_bot.bot_sender_action(sender, "mark_seen")
+
+            # 然後處理
+            bot.handle_postback(msg, sender, payload)
+        except Exception as e:
+            print(e)
+
+            # 後台炸裂, 跟使用者說抱歉
+            bot.intention_bot.bot_send_message(sender, {"text": "對不起，系統炸了OAQ，請聯絡管理員 :S"})
+            
 
 @app.route("/callback", methods=['POST'])
 def messenge_updates():
@@ -66,6 +89,13 @@ def messenge_updates():
                     # 這邊使用 Async Task:
                     #   先送到 Redis 去存起來, 然後交給 celery 完成任務
                     celery_handle_message.delay(msg, sender, msgbody)
+                if 'sender' in msg and 'postback' in msg and 'payload' in msg['postback']:
+                    sender = msg['sender']['id']
+                    payload = msg['postback']['payload']
+                    # 知道更多：圖片、食譜、哪裡買得到
+                    celery_handle_postback.delay(msg, sender, payload)
 
     return "OK"
-    
+   
+from .website import website
+app.register_blueprint(website)
