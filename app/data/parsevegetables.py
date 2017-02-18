@@ -17,13 +17,13 @@ def add_vegetables(dryrun=True):
 
             for x in elist:
                 x = x.strip().lower()
-                print("%s, %s" % (c, x))
             
-            if dryrun == False:
-                q = Term.query.filter_by(english=e, chinese=c).first()
+                q = Term.query.filter_by(english=x, chinese=c).first()
                 if q == None:
-                    q = Term(english=e, chinese=c)
-                    db.session.add(q)
+                    print("%s, %s" % (c, x))
+                    q = Term(english=x, chinese=c)
+                    if dryrun == False:
+                        db.session.add(q)
 
     except:
         pass

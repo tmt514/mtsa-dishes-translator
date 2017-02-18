@@ -15,10 +15,10 @@ def add_dishes(dryrun=True):
 
             c = mafan.to_traditional(c)
             e = e.strip().lower()
-            print("%s, %s" % (c, e))
-            if dryrun == False:
-                q = Term.query.filter_by(english=e, chinese=c).first()
-                if q == None:
+            q = Term.query.filter_by(english=e, chinese=c).first()
+            if q == None:
+                print("%s, %s" % (c, e))
+                if dryrun == False:
                     q = Term(english=e, chinese=c)
                     db.session.add(q)
 
