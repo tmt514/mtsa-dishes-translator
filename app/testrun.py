@@ -1,6 +1,6 @@
 import urllib.request 
 import urllib.parse
-from secrets import GOOGLE_SEARCH_API_KEY, GOOGLE_SEARCH_CX
+from app.secrets import GOOGLE_SEARCH_API_KEY, GOOGLE_SEARCH_CX
 
 import json
 

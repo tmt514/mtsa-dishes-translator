@@ -55,6 +55,16 @@ class Template:
             - 詞性和詞句皆相符: SCORE_EXACT_MATCH[詞性] =
             - target 不能跳過   SCORE_TARGET_MATCH
         """
+        # TODO: move these to proper config file
+        SCORE_FLAG_MATCH_DEFAULT = 1.0
+        SCORE_FLAG_MATCH = {}
+        SCORE_EXACT_MATCH_DEFAULT = 2.0
+        SCORE_EXACT_MATCH = {}
+        SCORE_TARGET_MATCH = 0.0
+
+        for i in range(len(self.model)):
+            pass
+        
         pass
 
     def exact_match(self, pattern):

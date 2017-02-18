@@ -83,10 +83,11 @@ def db_migrate():
 
 def run_tests():
     """ 執行指定測試 """
-    import app.tests.test_app as test_app
-    import unittest
-    suite = unittest.TestLoader().loadTestsFromTestCase(test_app.AppTestCase)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    os.system("green -vv app")
+    #import app.tests.test_app as test_app
+    #import unittest
+    #suite = unittest.TestLoader().loadTestsFromTestCase(test_app.AppTestCase)
+    #unittest.TextTestRunner(verbosity=2).run(suite)
     
 
 
