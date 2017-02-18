@@ -38,7 +38,6 @@ def hello():
 from app.bot import Bot
 bot = Bot(app)
 
-
 @celery.task
 def celery_handle_message(msg, sender, msgbody):
     """ 背景作業：處理每一個傳進來的訊息 """

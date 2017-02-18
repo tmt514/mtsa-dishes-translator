@@ -7,6 +7,7 @@ import jieba
 import jieba.posseg as pseg
 jieba.set_dictionary("app/data/dict.txt.big")
 
+import nltk
 
 class Pattern:
     def __init__(self, t):
@@ -22,6 +23,13 @@ class Pattern:
         self.score = score
         self.template = template
         self.targets = targets
+
+
+class PatternEnglish(Pattern):
+    def __init__(self, t):
+        super().__init__(t)
+        self.model = [pseg.pair(word=x[0], flag=x[1]) for x in nltk.pos_tag(nltk.word_tokenize(t))]
+        self.model = list(filter(lambda x: x.word != ' ' and x.flag[0] != '.', self.model))
 
 
 
@@ -61,11 +69,17 @@ class Template:
         
         # 1. 完全比對: 除了 target 以外的部份全部詞性正確、文字正確
         flag, score, targets = self.exact_match(pattern)
-        print("[Template Matcher]: %s, %s, %s" % (str(flag), str(score), str(targets)))
+        print("[%s]: %s, %s, %s" % (self.__class__.__name__, str(flag), str(score), str(targets)))
         
         if score > pattern.score:
             pattern.update_matched_information(score, self, targets)
 
+class TemplateEnglish(Template):
+    def __init__(self, s, bot_name):
+        super().__init__(s, bot_name)
+        self.model = [pseg.pair(word=x[0], flag=x[1]) for x in nltk.pos_tag(nltk.word_tokenize(s))]
+        self.model = list(filter(lambda x: x.word != ' ' and x.flag[0] != '.', self.model))
+        self.target_ids = list(compress(range(len(self.model)), [x.word == 'X' for x in self.model]))
 
         
 
@@ -75,33 +89,36 @@ class TargetIntentionExtrator:
     def __init__(self):
         self.template_loaded = False
         self.all_templates = []
+        self.template_file = 'app/data/target_templates'
+        self.template_class = Template
+    
+    def make_template(self, s, bot_name):
+        return self.template_class(s, bot_name)
 
     def init_template_files(self):
         if self.template_loaded == True:
             return
 
         print("[" + self.__class__.__name__ + "] initializing template files")
-        TEMPLATE_FILE = 'app/data/target_templates'
-        f = open(TEMPLATE_FILE)
+        f = open(self.template_file)
         for line in f:
             v = line.split(";")
             if len(v) >= 2:
-                self.all_templates.append(Template(v[0], v[1]))
+                self.all_templates.append(self.make_template(v[0], v[1]))
         f.close()
         self.template_loaded = True
 
-    def fetch_target_and_intention(self, t):
+    def fetch_target_and_intention(self, pattern):
 
         if self.template_loaded == False:
             self.init_template_files()
 
-        pattern = Pattern(t)
         for template in self.all_templates:
             template.match_pattern(pattern)
         
         bot_name = pattern.template.bot_name
         targets = pattern.targets
-        print("[Template Matcher]: bot=%s, targets=%s" %(bot_name, str(targets)))
+        print("[%s]: bot=%s, targets=%s" %(self.__class__.__name__, bot_name, str(targets)))
 
         if bot_name == EnglishToChineseIntentionBot.__name__:
             if len(targets) >= 1:
@@ -112,13 +129,24 @@ class TargetIntentionExtrator:
         elif bot_name == GreetingIntentionBot.__name__:
             return (targets, GreetingIntentionBot)
 
-        return (None, IntentionBot)
+        return (None, None)
 
 
-fetcher = TargetIntentionExtrator()
+class TargetIntentionExtratorEnglish(TargetIntentionExtrator):
+    def __init__(self):
+        super().__init__()
+        self.template_file = 'app/data/target_templates_english'
+        self.template_class = TemplateEnglish
 
-def fetching_target_and_intention(s):
+
+fetcher_jieba = TargetIntentionExtrator()
+fetcher_nltk = TargetIntentionExtratorEnglish()
+
+
+def fetching_target_and_intention_jieba(s):
     """ 從一個中文句子當中嘗試辨認 target """
+    return fetcher_jieba.fetch_target_and_intention(Pattern(s))
 
-    return fetcher.fetch_target_and_intention(s)
-
+def fetching_target_and_intention_nltk(s):
+    """ 從一個英文句子中嘗試辨認 target """
+    return fetcher_nltk.fetch_target_and_intention(PatternEnglish(s))

@@ -97,10 +97,15 @@ class IntentionDetector:
         return IntentionBot()
 
     def get_intention_bot_from_english_sentence(self, s):
-        return (None, EnglishToChineseIntentionBot)
+        """ 從 utils 裡面的 nltk 協助找出意圖 """
+        target, bot_class = fetching_target_and_intention_nltk(s)
+        if bot_class == None:
+            return (None, EnglishToChineseIntentionBot)
+        return (target, bot_class)
 
     def get_intention_bot_from_chinese_sentence(self, s):
-        target, bot_class = fetching_target_and_intention(s)
+        """ 從 utils 裡面的 jieba 協助找出意圖 """
+        target, bot_class = fetching_target_and_intention_jieba(s)
         if target == None:
             return (None, ChineseToEnglishIntentionBot)
         return (target, bot_class)
