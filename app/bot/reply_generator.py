@@ -20,14 +20,21 @@ class ReplyGenerator:
                 { "text": "耶嘿～" },
                 { "text": "謝謝你 (y)" },
                 ])
+        if tag == "you are welcome":
+            return random.choice([
+                { "text": "哪裡哪裡，您太客氣咯^^" },
+                { "text": "不客氣 :)" },
+                { "text": "謝謝您的支持!" },
+                { "text": "不客氣，希望對您有幫助！" },
+                { "text": "我才要謝謝您呢！" },
+                ])
         return {
             "text": "：）"
         }
 
-    def translated_string(self, msg):
-        return {
-                "text": msg,
-                "quick_replies":[
+    def add_quick_replies(self, value_payloads=None, flags=None):
+        # TODO: flags
+        return [
                     {
                         "content_type": "text",
                         "title": "正確",
@@ -52,7 +59,26 @@ class ReplyGenerator:
                         "image_url": "https://image.flaticon.com/icons/png/128/60/60969.png"
                     }
                 ]
+
+
+    def translated_string(self, msg):
+        ret = {
+                "text": msg,
             }
+        ret['quick_replies'] = self.add_quick_replies()
+        return ret
+
+    def image(self, url):
+        ret = {
+            "attachment": {
+                "type": "image",
+                "payload": {
+                    "url": url
+                }
+            }
+        }
+        ret['quick_replies'] = self.add_quick_replies()
+        return ret
 
     def ask_more(self, state):
         """ 「想知道更多」的選項 """

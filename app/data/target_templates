@@ -4,3 +4,6 @@
 請問 X 的中文是什麼;      EnglishToChineseIntentionBot
 X 的中文;                 EnglishToChineseIntentionBot
 X中文;                    EnglishToChineseIntentionBot
+嗨;                       GreetingIntentionBot
+您好;                     GreetingIntentionBot
+唷;                       GreetingIntentionBot

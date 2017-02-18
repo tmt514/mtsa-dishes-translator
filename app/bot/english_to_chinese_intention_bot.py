@@ -138,6 +138,11 @@ class EnglishToChineseIntentionBot(IntentionBot):
             state.set_english(msgtext.strip().lower())
             state.set_chinese(tr)
             self.bot_send_message(sender, self.reply_gen.translated_string(tr))
+            
+            q = Term.query.filter_by(english=msgtext.strip().lower(), chinese=tr).first()
+            if q is not None and q.photos.first() is not None:
+                self.bot_send_message(sender, self.reply_gen.image(q.photos.first().url))
+
             return
 
         # TODO: 其他情形 -> 圖片? 按讚?

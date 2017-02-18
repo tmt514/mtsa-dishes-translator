@@ -125,6 +125,10 @@ class ChineseToEnglishIntentionBot(IntentionBot):
             state.set_english(tr)
             state.set_chinese(msgtext.strip())
             self.bot_send_message(sender, self.reply_gen.translated_string(tr))
+            
+            q = Term.query.filter_by(chinese=msgtext.strip(), english=tr).first()
+            if q is not None and q.photos.first() is not None:
+                self.bot_send_message(sender, self.reply_gen.image(q.photos.first().url))
             return
 
 

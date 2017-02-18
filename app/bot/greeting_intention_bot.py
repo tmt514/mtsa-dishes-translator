@@ -12,9 +12,19 @@ from app.bot.reply_generator import ReplyGenerator
 from app.bot.intention_bot import IntentionBot
 
 class GreetingIntentionBot(IntentionBot):
-    def __init__(self):
+    def __init__(self, params):
         super().__init__()
+        self.params = params
 
     def handle_message(self, msg, sender, state, msgbody):
-        pass
+        self.bot_send_message(sender, {"text": "您好！我是 AA食物翻譯小幫手～，直接輸入英文或中文都可以唷！"})
 
+
+
+class YouAreWelcomeIntentionBot(IntentionBot):
+    def __init__(self, params):
+        super().__init__()
+        self.params = params
+
+    def handle_message(self, msg, sender, state, msgbody):
+        self.bot_send_message(sender, self.reply_gen.sticker("you are welcome"))

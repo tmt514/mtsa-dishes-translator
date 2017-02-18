@@ -1,5 +1,5 @@
 from app.bot.intention_bot import IntentionBot
-from app.bot.greeting_intention_bot import GreetingIntentionBot
+from app.bot.greeting_intention_bot import GreetingIntentionBot, YouAreWelcomeIntentionBot
 from app.bot.english_to_chinese_intention_bot import EnglishToChineseIntentionBot
 from app.bot.chinese_to_english_intention_bot import ChineseToEnglishIntentionBot
 
@@ -8,6 +8,7 @@ import jieba.posseg as pseg
 jieba.set_dictionary("app/data/dict.txt.big")
 
 import nltk
+import json
 
 class Pattern:
     def __init__(self, t):
@@ -28,21 +29,23 @@ class Pattern:
 class PatternEnglish(Pattern):
     def __init__(self, t):
         super().__init__(t)
-        self.model = [pseg.pair(word=x[0], flag=x[1]) for x in nltk.pos_tag(nltk.word_tokenize(t))]
+        self.model = [pseg.pair(word=x[0].strip().lower(), flag=x[1]) for x in nltk.pos_tag(nltk.word_tokenize(t))]
         self.model = list(filter(lambda x: x.word != ' ' and x.flag[0] != '.', self.model))
 
 
 
 from itertools import compress
 class Template:
-    def __init__(self, s, bot_name):
+    def __init__(self, s, bot_name, bot_params):
         self.model = pseg.cut(s)
         self.s = s
         self.bot_name = bot_name.strip()
+        self.bot_params = bot_params
         # 把空白和標點符號去掉
         self.model = list(filter(lambda x: x.word != ' ' and x.flag[0] != 'w', self.model))
         # 把 target 的索引記下來
         self.target_ids = list(compress(range(len(self.model)), [x.word == 'X' for x in self.model]))
+        
 
     def best_match(self, pattern):
         """ 跑一個小小 DP 計算加權的 edit distance """
@@ -75,9 +78,9 @@ class Template:
             pattern.update_matched_information(score, self, targets)
 
 class TemplateEnglish(Template):
-    def __init__(self, s, bot_name):
-        super().__init__(s, bot_name)
-        self.model = [pseg.pair(word=x[0], flag=x[1]) for x in nltk.pos_tag(nltk.word_tokenize(s))]
+    def __init__(self, s, bot_name, bot_params):
+        super().__init__(s, bot_name, bot_params)
+        self.model = [pseg.pair(word=x[0].strip().lower(), flag=x[1]) for x in nltk.pos_tag(nltk.word_tokenize(s))]
         self.model = list(filter(lambda x: x.word != ' ' and x.flag[0] != '.', self.model))
         self.target_ids = list(compress(range(len(self.model)), [x.word == 'X' for x in self.model]))
 
@@ -92,8 +95,8 @@ class TargetIntentionExtrator:
         self.template_file = 'app/data/target_templates'
         self.template_class = Template
     
-    def make_template(self, s, bot_name):
-        return self.template_class(s, bot_name)
+    def make_template(self, s, bot_name, bot_params={}):
+        return self.template_class(s, bot_name, bot_params)
 
     def init_template_files(self):
         if self.template_loaded == True:
@@ -103,7 +106,9 @@ class TargetIntentionExtrator:
         f = open(self.template_file)
         for line in f:
             v = line.split(";")
-            if len(v) >= 2:
+            if len(v) >= 3:
+                self.all_templates.append(self.make_template(v[0], v[1], v[2].split(",")))
+            elif len(v) >= 2:
                 self.all_templates.append(self.make_template(v[0], v[1]))
         f.close()
         self.template_loaded = True
@@ -118,7 +123,8 @@ class TargetIntentionExtrator:
         
         bot_name = pattern.template.bot_name
         targets = pattern.targets
-        print("[%s]: bot=%s, targets=%s" %(self.__class__.__name__, bot_name, str(targets)))
+        params = pattern.template.bot_params
+        print("[%s]: bot=%s, targets=%s, params=%s" %(self.__class__.__name__, bot_name, str(targets), json.dumps(params)))
 
         if bot_name == EnglishToChineseIntentionBot.__name__:
             if len(targets) >= 1:
@@ -127,7 +133,9 @@ class TargetIntentionExtrator:
             if len(targets) >= 1:
                 return (targets[0], ChineseToEnglishIntentionBot)
         elif bot_name == GreetingIntentionBot.__name__:
-            return (targets, GreetingIntentionBot)
+            return (params, GreetingIntentionBot)
+        elif bot_name == YouAreWelcomeIntentionBot.__name__:
+            return (params, YouAreWelcomeIntentionBot)
 
         return (None, None)
 
