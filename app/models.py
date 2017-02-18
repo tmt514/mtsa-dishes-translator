@@ -3,11 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy(app)
 
 
-similars = db.Table('terms',
-        db.Column('x', db.Integer, db.ForeignKey('term.id')),
-        db.Column('y', db.Integer, db.ForeignKey('term.id'))
-    )
-
 class Term(db.Model):
     """ 最原始的中英對照字典表, 此外有 hit_count 記錄被查詢的頻率 """
     id = db.Column(db.Integer, primary_key=True)
@@ -15,16 +10,28 @@ class Term(db.Model):
     chinese = db.Column(db.String(128), index=True)
     hit_counts = db.Column(db.Integer)
 
-    similars = db.relationship('Term', secondary=similars,
-            primaryjoin=(id==similars.c.x),
-            secondaryjoin=(id==similars.c.y),
-            backref=db.backref('term',lazy='dynamic'))
+    similars = db.relationship('Similar', foreign_keys='Similar.x_id', backref='term', lazy='dynamic')
+
+    #similars = db.relationship('Term', secondary=similars,
+    #        primaryjoin=(id==similars.c.x),
+    #        secondaryjoin=(id==similars.c.y),
+    #        backref=db.backref('term',lazy='dynamic'))
 
     photos = db.relationship('Photo', backref='term', lazy='dynamic')
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
+
+class Similar(db.Model):
+    """ 描述兩個 Term 之間是否相近 """
+    id = db.Column(db.Integer, primary_key=True)
+    x_id = db.Column(db.Integer, db.ForeignKey('term.id'), index=True)
+    y_id = db.Column(db.Integer, db.ForeignKey('term.id'), index=True)
+    x = db.relationship(Term, foreign_keys=x_id, backref='similar')
+    y = db.relationship(Term, foreign_keys=y_id, backref='similar_to')
+    
+    score = db.Column(db.Float)
 
 class Location(db.Model):
     """ 記錄附近的商家 """

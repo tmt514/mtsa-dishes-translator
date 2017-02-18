@@ -48,7 +48,13 @@ class Template:
         
 
     def best_match(self, pattern):
-        """ 跑一個小小 DP 計算加權的 edit distance """
+        """ 跑一個小小 DP 計算加權的 edit distance:
+
+            計算規則：
+            - 詞性相符:         SCORE_FLAG_MATCH[詞性] =
+            - 詞性和詞句皆相符: SCORE_EXACT_MATCH[詞性] =
+            - target 不能跳過   SCORE_TARGET_MATCH
+        """
         pass
 
     def exact_match(self, pattern):

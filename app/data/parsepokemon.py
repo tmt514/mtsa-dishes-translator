@@ -12,21 +12,26 @@ def add_pokemons(dryrun=True):
             e = " ".join(v[3:]).strip().lower()
             c = v[1].strip()
             if Term.query.filter_by(english=e, chinese=c).first():
-                continue
+                pass
+            else:
+                print("%s, %s" % (c, e))
 
-            print("%s, %s" % (c, e))
+                term = Term(english=e, chinese=c, hit_counts=0)
+                if not dryrun:
+                    db.session.add(term)
 
-            term = Term(english=e, chinese=c, hit_counts=0)
-            if not dryrun:
-                db.session.add(term)
-            if seq <= 151:
-                photo = Photo(term=term, url="https://rankedboost.com/wp-content/plugins/ice/riot/poksimages/pokemons/%03d.png" % (seq))
-                if not dryrun:
-                    db.session.add(photo)
-            elif seq <= 251:
-                photo = Photo(term=term, url="https://rankedboost.com/wp-content/plugins/ice/riot/poksimages/pokemons2/%03d.png" % (seq))
-                if not dryrun:
-                    db.session.add(photo)
+            term = Term.query.filter_by(english=e, chinese=c).first()
+            if Photo.query.filter_by(term=term).first():
+                pass
+            else:
+                if seq <= 151:
+                    photo = Photo(term=term, url="https://rankedboost.com/wp-content/plugins/ice/riot/poksimages/pokemons/%03d.png" % (seq))
+                    if not dryrun:
+                        db.session.add(photo)
+                elif seq <= 251:
+                    photo = Photo(term=term, url="https://rankedboost.com/wp-content/plugins/ice/riot/poksimages/pokemons2/%03d.png" % (seq))
+                    if not dryrun:
+                        db.session.add(photo)
         
         db.session.commit()
     except Exception as e:
