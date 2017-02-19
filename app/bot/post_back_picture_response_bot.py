@@ -19,7 +19,7 @@ class PostPictureResponseBot(IntentionBot):
         super().__init__()
         self.target = target
 
-    def handle_postback(msg, sender, payload):
+    def handle_postback(self,msg, sender, payload):
         print (msg, sender, payload)
         print ("bot_sender_action")
 
