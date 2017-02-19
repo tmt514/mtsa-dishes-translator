@@ -1,5 +1,6 @@
 from app.bot.intention_bot import IntentionBot
 from app.bot.greeting_intention_bot import GreetingIntentionBot, YouAreWelcomeIntentionBot
+from app.bot.cold_joke_intention_bot import ColdJokeIntentionBot
 from app.bot.english_to_chinese_intention_bot import EnglishToChineseIntentionBot
 from app.bot.chinese_to_english_intention_bot import ChineseToEnglishIntentionBot
 
@@ -186,6 +187,8 @@ class TargetIntentionExtrator:
             return (params, GreetingIntentionBot)
         elif bot_name == YouAreWelcomeIntentionBot.__name__:
             return (params, YouAreWelcomeIntentionBot)
+        elif bot_name == ColdJokeIntentionBot.__name__:
+            return (params, ColdJokeIntentionBot)
 
         return (None, None)
 
