@@ -101,3 +101,7 @@ def messenge_updates():
    
 from .website import website
 app.register_blueprint(website)
+
+if __name__ == '__main__':
+    main()
+

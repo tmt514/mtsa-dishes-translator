@@ -26,7 +26,7 @@ class PostPictureResponseBot(IntentionBot):
         self.bot_send_message(sender, { "text": "看圖片這個功能還沒做出來" })
         print ("Pang!!")
         return
-    def handle_message(self, msg, sender, state, msgbody):
+    def handle_message(msg, sender, state, msgbody):
         self.handle_postback(msg, sender,"")
         
         
