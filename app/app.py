@@ -63,7 +63,7 @@ def celery_handle_postback(msg, sender, payload):
         try:
             # 先已讀
             bot.intention_bot.bot_sender_action(sender, "mark_seen")
-
+            print ("bot_sender_action")
             # 然後處理
             bot.handle_postback(msg, sender, payload)
         except Exception as e:
