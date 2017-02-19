@@ -15,6 +15,7 @@ class IntentionBot:
         self.reply_gen = ReplyGenerator()
 
     def handle_message(self, msg, sender, state, msgbody):
+        print(msgbody)
         raise Exception("Not Implemented!")
 
     def bot_sendAPI(self, data):
