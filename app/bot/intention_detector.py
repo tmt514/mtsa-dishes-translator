@@ -55,6 +55,7 @@ class IntentionDetector:
         ###
         ### Step 1: 檢查是否為同一個討論串
         ###
+        print (msgbody,sender,state)
 
         # 如果是用 quick reply 回覆剛才的選單的話，直接交給剛才處理的 bot
         if 'quick_reply' in msgbody:
