@@ -19,12 +19,9 @@ class PostPictureResponseBot(IntentionBot):
         super().__init__()
         self.target = target
 
-    def handle_postback(self,msg, sender, payload):
+    def handle_postback(self, msg, sender, payload):
         print (msg, sender, payload)
         print ("bot_sender_action")
-
         state.set_status('new')
         self.bot_send_message(sender, { "text": "看圖片這個功能還沒做出來" })
         return
-
-        
