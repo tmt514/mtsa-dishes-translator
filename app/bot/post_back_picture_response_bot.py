@@ -24,4 +24,5 @@ class PostPictureResponseBot(IntentionBot):
         print ("bot_sender_action")
         state.set_status('new')
         self.bot_send_message(sender, { "text": "看圖片這個功能還沒做出來" })
+        print ("Pang!!")
         return
