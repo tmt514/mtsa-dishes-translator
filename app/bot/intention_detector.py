@@ -115,5 +115,6 @@ class IntentionDetector:
 
     def get_postback_intention_bot(self, sender, state, payload, target):
         if payload=='TMT_PICTURE':
+            print ("PostPictureResponseBot called")
             return PostPictureResponseBot()
         return IntentionBot()
