@@ -3,7 +3,9 @@ from app.bot.intention_bot import IntentionBot
 from app.bot.greeting_intention_bot import GreetingIntentionBot
 from app.bot.english_to_chinese_intention_bot import EnglishToChineseIntentionBot
 from app.bot.chinese_to_english_intention_bot import ChineseToEnglishIntentionBot
+from app.bot.post_back_picture_response_bot import PostPictureResponseBot
 from app.bot.intention_detector_utils import *
+
 
 
 import jieba
@@ -112,4 +114,6 @@ class IntentionDetector:
         return (target, bot_class)
 
     def get_postback_intention_bot(self, sender, state, payload, target):
+        if payload=='TMT_PICTURE':
+            return PostPictureResponseBot()
         return IntentionBot()

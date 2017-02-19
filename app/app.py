@@ -70,7 +70,7 @@ def celery_handle_postback(msg, sender, payload):
             print(e)
 
             # 後台炸裂, 跟使用者說抱歉
-            bot.intention_bot.bot_send_message(sender, {"text": "對不起，系統炸了OAQ，請聯絡管理員 :S"})
+            bot.intention_bot.bot_send_message(sender, {"text": "傳尛？"})
             
 
 @app.route("/callback", methods=['POST'])
