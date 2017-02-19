@@ -1,9 +1,7 @@
 import urllib.parse
-from app.models import db, Term 
-from html.parser import HTMLParser
-from google import search, get_page
-from bs4 import BeautifulSoup
-from datetime import datetime
+from random import randint
+
+from app.models import db, Joke
 from app.secrets import PAGE_TOKEN
 from app.bot.constants import *
 from app.bot.reply_generator import ReplyGenerator
@@ -15,5 +13,8 @@ class ColdJokeIntentionBot(IntentionBot):
         self.params = params
 
     def handle_message(self, msg, sender, state, msgbody):
-        self.bot_send_message(sender, {"text": "說笑話"})
+        cnt = Joke.query.filter_by().count()
+        q = Joke.query.get(randint(1,cnt))
+        content = q.content
+        self.bot_send_message(sender,{"text": content})
 

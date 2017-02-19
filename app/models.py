@@ -78,7 +78,6 @@ class User(db.Model):
 
 
 class Joke(db.Model):
-    """ 使用者資料, 以 sender id 作為索引 """
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(1024))
     # fbuid = db.Column(db.String(128), index=True)
