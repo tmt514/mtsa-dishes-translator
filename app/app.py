@@ -3,19 +3,22 @@
 from flask import Flask, request, render_template, session, url_for
 from celery import Celery
 from app.app_celery import make_celery
+from app.secrets import APP_CONFIG_SECRET_KEY, APP_CONFIG_CELERY_BROKER_URL, \
+        APP_CONFIG_CELERY_RESULT_BACKEND, APP_CONFIG_REDIS_URL
 import json
 import urllib.request
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SECRET_KEY'] = 'very-very-super-secret'
+app.config['SECRET_KEY'] = APP_CONFIG_SECRET_KEY
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///aafood.db'
 
-app.config['CELERY_BROKER_URL']='redis://localhost:6379/0'
-app.config['CELERY_RESULT_BACKEND']='redis://localhost:6379/0'
+app.config['CELERY_BROKER_URL']= APP_CONFIG_CELERY_BROKER_URL
+app.config['CELERY_RESULT_BACKEND'] = APP_CONFIG_CELERY_RESULT_BACKEND
+
 celery = make_celery(app)
 
 from flask_redis import FlaskRedis
-app.config['REDIS_URL'] = 'redis://localhost:6379/1'
+app.config['REDIS_URL'] = APP_CONFIG_REDIS_URL 
 redis_store = FlaskRedis(app)
 
 
