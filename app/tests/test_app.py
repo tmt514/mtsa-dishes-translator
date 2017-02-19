@@ -26,8 +26,14 @@ class AppTestCase(unittest.TestCase):
         db.session.add(term_b)
         similar = Similar(x=term_a, y=term_b, score=0.8)
         term_a.similars.append(similar)
-        print("\033[1;33m測試log\033[m")
 
     def test_assertion(self):
         assert 10 + 10 == 20
+
+
+    def test_pattern_match(self):
+        from app.bot.intention_detector_utils import fetching_target_and_intention_jieba
+        target, bot = fetching_target_and_intention_jieba('幫我翻譯 avocado 的中文')
+        assert target == 'avocado'
+
 

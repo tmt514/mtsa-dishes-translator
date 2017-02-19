@@ -62,10 +62,37 @@ class Template:
         SCORE_EXACT_MATCH = {}
         SCORE_TARGET_MATCH = 0.0
 
+        dp = [[(0.0, []) for y in range(len(pattern.model)+1)] for x in range(len(self.model)+1)]
+        n = len(self.model)
+        m = len(pattern.model)
         for i in range(len(self.model)):
-            pass
-        
-        pass
+            if i in self.target_ids:
+                # Target --
+                for j in range(len(pattern.model)):
+                    dp[i+1][j+1] = (dp[i][j][0], dp[i][j][1] + [pattern.model[j].word])
+            else:
+                for j in range(len(pattern.model)):
+
+                    # Not Target -- No Match
+                    if dp[i+1][j+1][0] < dp[i+1][j][0]:
+                        dp[i+1][j+1] = dp[i+1][j]
+                    if dp[i+1][j+1][0] < dp[i][j+1][0]:
+                        dp[i+1][j+1] = dp[i][j+1]
+
+                    # Not Target -- Case 1: Exact match
+                    if self.model[i].word == pattern.model[j].word and\
+                            self.model[i].flag == pattern.model[j].flag:
+                        new_score = dp[i][j][0] + SCORE_EXACT_MATCH.get(self.model[i].flag, SCORE_EXACT_MATCH_DEFAULT)
+                        if dp[i+1][j+1][0] < new_score:
+                            dp[i+1][j+1] = (new_score, dp[i][j][1])
+                    # Not Target -- Case 2: only flag match
+                    elif self.model[i].flag == pattern.model[j].flag:
+                        new_score = dp[i][j][0] + SCORE_FLAG_MATCH.get(self.model[i].flag, SCORE_FLAG_MATCH_DEFAULT)
+                        if dp[i+1][j+1][0] < new_score:
+                            dp[i+1][j+1] = (new_score, dp[i][j][1])
+
+        return (True, dp[n][m][0] / n, dp[n][m][1])
+
 
     def exact_match(self, pattern):
         """ 判斷是否完全吻合, T/F, 分數, targets """
@@ -80,7 +107,7 @@ class Template:
                 if pattern.model[i].word != self.model[i].word or \
                     pattern.model[i].flag != self.model[i].flag:
                     return (False, 0.0, [])
-        return (True, 1.0, targets)
+        return (True, 100.0, targets)
 
 
     def match_pattern(self, pattern):
@@ -89,9 +116,16 @@ class Template:
         # 1. 完全比對: 除了 target 以外的部份全部詞性正確、文字正確
         flag, score, targets = self.exact_match(pattern)
         print("[%s]: %s, %s, %s" % (self.__class__.__name__, str(flag), str(score), str(targets)))
-        
-        if score > pattern.score:
+        if flag == True and score > pattern.score:
             pattern.update_matched_information(score, self, targets)
+
+        # 2. Edit Distance 比對
+        flag, score, targets = self.best_match(pattern)
+        print("[%s]: %s, %s, %s" % (self.__class__.__name__, str(flag), str(score), str(targets)))
+        if flag == True and score > pattern.score:
+            pattern.update_matched_information(score, self, targets)
+
+        
 
 class TemplateEnglish(Template):
     def __init__(self, s, bot_name, bot_params):
