@@ -34,7 +34,7 @@ def db_backup():
 
     # TODO: 其他資料表呢????
 
-    from app.models import db, Term
+    from app.models import db, Term, Photo
     import json
     dumpfile = open('app/data/db_dump', 'w')
     # 備份 Terms
@@ -45,8 +45,15 @@ def db_backup():
         d['__db'] = 'Term'
         dumpfile.write(json.dumps(d) + "\n")
         counter += 1
-    dumpfile.close()
     print(" 共 %d 筆資料完成!" % (counter))
+    print("備份 Photo...", end="")
+    for photo in Photo.query.all():
+        d = photo.as_dict()
+        d['__db'] = 'Photo'
+        dumpfile.write(json.dumps(d) + "\n")
+        counter += 1
+    dumpfile.close()
+    print(" 總共 %d 筆資料完成!" % (counter))
 
     db.session.close()
 
@@ -56,7 +63,7 @@ def db_load(filename='app/data/db_dump'):
     
     # TODO: 其他資料表呢????
 
-    from app.models import db, Term
+    from app.models import db, Term, Photo
     import json
     dumpfile = open(filename, 'r')
     # 載入資料
@@ -66,8 +73,14 @@ def db_load(filename='app/data/db_dump'):
         d = json.loads(line)
         if d['__db'] == 'Term':
             if not Term.query.get(d['id']):
+                del(d['__db'])
                 term = Term(id=d['id'],english=d['english'],chinese=d['chinese'],hit_counts=d['hit_counts'])
                 db.session.add(term)
+        if d['__db'] == 'Photo':
+            if not Photo.query.get(d['id']):
+                del(d['__db'])
+                photo = Photo(**d)
+                db.session.add(photo)
         counter += 1
     db.session.commit()
     print(" 共 %d 筆資料完成!" % (counter))
@@ -118,6 +131,10 @@ if sys.argv[1] == 'test':
 # 執行資料庫備份
 if sys.argv[1] == 'backup':
     db_backup()
+    sys.exit(0)
+
+if sys.argv[1] == 'db_load':
+    db_load()
     sys.exit(0)
 
 

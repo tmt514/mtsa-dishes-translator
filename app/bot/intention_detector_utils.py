@@ -92,7 +92,12 @@ class Template:
                         if dp[i+1][j+1][0] < new_score:
                             dp[i+1][j+1] = (new_score, dp[i][j][1])
 
-        return (True, dp[n][m][0] / n, dp[n][m][1])
+        # 定義 threashold
+        score = dp[n][m][0] / (n+m)
+        if score > 0.5:
+            return (True, score, dp[n][m][1])
+        else:
+            return (False, score, [])
 
 
     def exact_match(self, pattern):
@@ -172,6 +177,9 @@ class TargetIntentionExtrator:
         for template in self.all_templates:
             template.match_pattern(pattern)
         
+        if pattern.template == None:
+            return (None, None)
+
         bot_name = pattern.template.bot_name
         targets = pattern.targets
         params = pattern.template.bot_params
