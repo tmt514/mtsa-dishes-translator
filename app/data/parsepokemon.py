@@ -1,17 +1,17 @@
 from app.models import db, Term, Photo
 
-
+import json
 
 def add_pokemons(dryrun=True):
     try:
-        f = open('app/data/pokemon', 'r')
+        f = open('app/data/pokemon_data', 'r')
         for line in f:
-            v = line.split(" ")
+            v = json.loads(line)
             # 編號、中文、日文、英文
-            seq = int(v[0][1:])
-            e = " ".join(v[3:]).strip().lower()
-            c = v[1].strip()
-            if Term.query.filter_by(english=e, chinese=c).first():
+            seq = v['seq']
+            e = v['english']
+            c = v['chinese']
+            if Term.query.filter_by(english=e).first():
                 pass
             else:
                 print("%s, %s" % (c, e))
@@ -21,17 +21,21 @@ def add_pokemons(dryrun=True):
                     db.session.add(term)
 
             term = Term.query.filter_by(english=e, chinese=c).first()
-            if Photo.query.filter_by(term=term).first():
-                pass
+            photo = Photo.query.filter_by(term=term).first()
+
+            if photo is not None:
+                if v['image'] is not None:
+                    photo.url = "http:" + v['image']
+                else:
+                    print("Warning for " + v['seq'] + ": " + v['chinese'])
             else:
-                if seq <= 151:
-                    photo = Photo(term=term, url="https://rankedboost.com/wp-content/plugins/ice/riot/poksimages/pokemons/%03d.png" % (seq))
-                    if not dryrun:
-                        db.session.add(photo)
-                elif seq <= 251:
-                    photo = Photo(term=term, url="https://rankedboost.com/wp-content/plugins/ice/riot/poksimages/pokemons2/%03d.png" % (seq))
-                    if not dryrun:
-                        db.session.add(photo)
+                photo = Photo(term=term)
+                if v['image'] is not None:
+                    photo.url = "http:" + v['image']
+                else:
+                    print("Warning for " + v['seq'] + ": " + v['chinese'])
+                if not dryrun:
+                    db.session.add(photo)
         
         db.session.commit()
     except Exception as e:
