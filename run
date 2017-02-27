@@ -34,27 +34,25 @@ def db_backup():
 
     # TODO: 其他資料表呢????
 
-    from app.models import db, Term, Photo
+    from app.models import db, Term, Photo, Location, User, Joke
     import json
     dumpfile = open('app/data/db_dump', 'w')
-    # 備份 Terms
-    print("備份 Terms...", end="")
-    counter = 0
-    for term in Term.query.all():
-        d = term.as_dict()
-        d['__db'] = 'Term'
-        dumpfile.write(json.dumps(d) + "\n")
-        counter += 1
-    print(" 共 %d 筆資料完成!" % (counter))
-    print("備份 Photo...", end="")
-    for photo in Photo.query.all():
-        d = photo.as_dict()
-        d['__db'] = 'Photo'
-        dumpfile.write(json.dumps(d) + "\n")
-        counter += 1
-    dumpfile.close()
-    print(" 總共 %d 筆資料完成!" % (counter))
+    DB_TABLES = [Term, Photo, Location, User, Joke]
 
+    counter_all = 0
+    for Table in DB_TABLES:
+        counter_one = 0
+        print("備份 %-10s..." % Table.__name__, end="")
+        for row in Table.query.all():
+            d = row.as_dict()
+            d['__db'] = Table.__name__
+            dumpfile.write(json.dumps(d) + "\n")
+            counter_one += 1
+        counter_all += counter_one
+        print(" %6d 筆資料完成! 目前累計總數 %6d 筆。" % (counter_one, counter_all))
+
+    print("Done: 總共 %6d 筆資料完成!" % (counter_all))
+    dumpfile.close()
     db.session.close()
 
 
@@ -63,29 +61,27 @@ def db_load(filename='app/data/db_dump'):
     
     # TODO: 其他資料表呢????
 
-    from app.models import db, Term, Photo
+    from app.models import db, Term, Photo, Location, User, Joke
     import json
     dumpfile = open(filename, 'r')
+    DB_TABLES = [Term, Photo, Location, User, Joke]
+    DB_TABLES_DICT = dict(map(lambda Table: (Table.__name__, Table), DB_TABLES))
     # 載入資料
     print("載入資料中...")
     counter = 0
+    counter_inserted = 0
     for line in dumpfile:
         d = json.loads(line)
-        if d['__db'] == 'Term':
-            if not Term.query.get(d['id']):
+        Table = DB_TABLES_DICT.get(d['__db'], None)
+        if Table is not None:
+            if not Table.query.get(d['id']):
                 del(d['__db'])
-                term = Term(id=d['id'],english=d['english'],chinese=d['chinese'],hit_counts=d['hit_counts'])
-                db.session.add(term)
-        if d['__db'] == 'Photo':
-            if not Photo.query.get(d['id']):
-                del(d['__db'])
-                photo = Photo(**d)
-                db.session.add(photo)
+                row = Table(**d)
+                db.session.add(row)
+                counter_inserted += 1
         counter += 1
     db.session.commit()
-    print(" 共 %d 筆資料完成!" % (counter))
-    
-
+    print(" 共 %d 筆資料完成! (新增了 %d 筆資料)" % (counter, counter_inserted))
 
 
 def db_migrate():
@@ -127,12 +123,12 @@ if sys.argv[1] == 'celery':
     sys.exit(0)
 
 # 執行 Test
-if sys.argv[1] == 'test':
+if sys.argv[1] == 'test' or sys.argv[1] == 'tests':
     run_tests()
     sys.exit(0)
 
 # 執行資料庫備份
-if sys.argv[1] == 'backup':
+if sys.argv[1] == 'backup' or sys.argv[1] == 'db_backup':
     db_backup()
     sys.exit(0)
 
