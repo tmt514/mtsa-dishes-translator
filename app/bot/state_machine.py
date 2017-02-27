@@ -24,7 +24,7 @@ class StateMachine():
 
     def __run(self, bot, user, msg, **template_params):
         state_A = user.get_status()
-        print(msg)
+        print("[StateMachine] %s" % (msg))
         #if state_A.endswith("__running"):
             ## 直接 drop 這個 request: TODO: 待討論
             # print("\033[0;31mLogic running!\033[m")
@@ -57,7 +57,11 @@ class StateMachine():
         return (state_A == 'new')
 
     def run(self, bot, user, msg, **template_params):
+
+        # 對於不同的 worker, 每一隻都會分別初始化
         if self.has_initialized == False:
             self.__init()
+
+        # 在 state diagram 上面跑直到停下來為止
         while self.__run(bot, user, msg, **template_params) == False:
             pass

@@ -129,9 +129,9 @@ class EnglishToChineseIntentionRules(Rule):
 
     @transition(STATE_WAIT_FOR_FIX_CHINESE, {'text': ''}, STATE_ENGLISH_TO_CHINESE_OK)
     def rule_handle_fix(self, bot, user, msg, **template_params):
-        target = msgbody['text'].strip()
+        target = msg['text'].strip()
         user.set_chinese(target)
-        bot.bot_send_message(user.id, bot.reply_gen.translated_string("「" + msgtext + "」這樣對嗎？"))
+        bot.bot_send_message(user.id, bot.reply_gen.translated_string("「" + target + "」這樣對嗎？"))
         return True
 
     @transition(STATE_ENGLISH_TO_CHINESE_OK, {'quick_reply': {'payload': PAYLOAD_MORE}}, STATE_NEW)
