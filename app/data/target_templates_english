@@ -1,5 +1,6 @@
 What's chinese of X?;                 STATE_ENGLISH_TO_CHINESE
 X chinese;                            STATE_ENGLISH_TO_CHINESE
+please translate X;                   STATE_ENGLISH_TO_CHINESE
 hi;                                   STATE_GREETING; {"say":"hi"}
 hello;                                STATE_GREETING; {"say":"hi"}
 helo;                                 STATE_GREETING; {"say":"hi"}
