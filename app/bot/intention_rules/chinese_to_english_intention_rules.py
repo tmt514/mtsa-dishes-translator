@@ -80,10 +80,10 @@ class ChineseToEnglishIntentionRule(Rule):
             raise ForceChangeStateException(STATE_NEW, halt=True) # 強制取消
 
         user.set_english(tr)
-        user.set_chinese(msgtext.strip())
+        user.set_chinese(target.strip())
         bot.bot_send_message(user.id, bot.reply_gen.translated_string(tr))
         
-        q = Term.query.filter_by(chinese=msgtext.strip(), english=tr).first()
+        q = Term.query.filter_by(chinese=target.strip(), english=tr).first()
         if q is not None and q.photos.first() is not None:
             bot.bot_send_message(user.id, bot.reply_gen.image(q.photos.first().url))
         return True
