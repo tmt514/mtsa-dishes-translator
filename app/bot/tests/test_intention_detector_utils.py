@@ -12,3 +12,15 @@ class NLPTest(AAFoodTestCase):
         assert template_params['target'] == 'avocado'
         
         print(suggest_state, template_params)
+
+        suggest_state, template_params = fetching_target_and_intention_jieba("嗨")
+        print(suggest_state, template_params)
+        
+        suggest_state, template_params = fetching_target_and_intention_jieba("謝謝")
+        print(suggest_state, template_params)
+        
+
+        
+
+
+

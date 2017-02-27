@@ -164,7 +164,7 @@ class TargetIntentionExtrator:
         for line in f:
             v = line.split(";")
             if len(v) >= 3:
-                params = json.loads(";".join(v[2:]))
+                template_params = json.loads(";".join(v[2:]))
                 self.all_templates.append(self.make_template(v[0], v[1], **template_params))
             elif len(v) >= 2:
                 self.all_templates.append(self.make_template(v[0], v[1]))
@@ -184,11 +184,9 @@ class TargetIntentionExtrator:
 
 
         NLP_decision = pattern.template.suggest_state
-        params = {
-            'target': (pattern.targets[0] if len(pattern.targets) >= 1 else None),
-            'targets': pattern.targets,
-            'params': pattern.template.template_params
-        }
+        params = pattern.template.template_params.copy()
+        params['target'] = (pattern.targets[0] if len(pattern.targets) >= 1 else None)
+        params['targets'] = pattern.targets
 
         return (NLP_decision, params)
 

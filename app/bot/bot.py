@@ -54,28 +54,20 @@ class Bot:
             user.set_status('new')
         user.set_last_active(datetime.now())
 
+        # 從送進來的 msg 分析, 作為 input
         parsed_msg, template_params = self.intention_detector.parse_msg(user, msgbody)
+
+        # 執行到下一個 state
         self.state_machine.run(self.intention_bot, user, parsed_msg, **template_params)
-
-        # 取得意圖
-        # intention_bot = self.intention_detector.get_intention_bot(sender, user, msgbody)
-
-        # 處理意圖
-        # intention_bot.handle_message(msg, sender, user, msgbody)
 
 
     def handle_postback(self, msg, sender, payload):
         """ 處理 postback 的函式。 """
-        state = UserStatus(sender)
         p = re.match(r'([^:]*):(.*)', payload)
         payload = p.group(1)
         target = p.group(2)
         
-
-        #print("Handling payload: %s for target=%s" % (payload, target))
-        #intention_bot = self.intention_detector.get_postback_intention_bot(sender, state, payload, target)
-
-        #intention_bot.handle_message(msg, sender, state, {"payload": payload, "target": target})
+        self.handle_message(msg, sender, {"payload": payload, "target": target})
 
 
 

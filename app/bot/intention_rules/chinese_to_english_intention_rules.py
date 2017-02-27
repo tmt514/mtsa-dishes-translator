@@ -22,6 +22,7 @@ STATE_WAIT_FOR_FIX_ENGLISH = 'STATE_WAIT_FOR_FIX_ENGLISH'
 PAYLOAD_CONFIRM = 'PAYLOAD_CONFIRM'
 PAYLOAD_FIX = 'PAYLOAD_FIX'
 PAYLOAD_CANCEL = 'PAYLOAD_CANCEL'
+PAYLOAD_MORE = 'PAYLOAD_MORE'
 
 import enchant
 import mafan
@@ -114,10 +115,14 @@ class ChineseToEnglishIntentionRule(Rule):
 
     @transition(STATE_WAIT_FOR_FIX_ENGLISH, {'text':''}, STATE_CHINESE_TO_ENGLISH_OK)
     def rule_handle_fix(self, bot, user, msg, **template_params):
-        msgtext = msgbody['text'].strip()
-        user.set_english(msgtext.lower())
-        bot.bot_send_message(user.id, bot.reply_gen.translated_string("\"" + msgtext + "\" 這樣對嗎？"))
+        target = msg['text'].strip()
+        user.set_english(target.lower())
+        bot.bot_send_message(user.id, bot.reply_gen.translated_string("\"" + target + "\" 這樣對嗎？"))
         return True
 
 
         
+    @transition(STATE_CHINESE_TO_ENGLISH_OK, {'quick_reply': {'payload': PAYLOAD_MORE}}, STATE_NEW)
+    def rule_quick_more(self, bot, user, msg, **template_params):
+        bot.bot_send_message(user.id, bot.reply_gen.ask_more(user))
+        return True

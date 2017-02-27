@@ -1,4 +1,4 @@
-from app.app import app
+from app.app import app, redis_store
 from app.models import db, Term, Similar
 import unittest
 
@@ -7,15 +7,19 @@ import unittest
 class AAFoodTestCase(unittest.TestCase):
     def setUp(self):
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///aafood-test.db'
+        app.config['REDIS_URL'] = 'redis://localhost:6379/30'
         app.config['TESTING'] = True
         self.app = app.test_client()
         with app.app_context():
             db.init_app(app)
             db.create_all()
+            redis_store.init_app(app)
 
     def tearDown(self):
         db.session.remove()
         db.drop_all()
+        scan = redis_store.scan_iter()
+        redis_store.flushdb()
 
 
 class AppTestCase(AAFoodTestCase):

@@ -1,4 +1,5 @@
 from app.bot.rule import Rule, ForceChangeStateException
+from app.bot.intention_rules import *
 from collections import defaultdict
 
 class StateMachine():

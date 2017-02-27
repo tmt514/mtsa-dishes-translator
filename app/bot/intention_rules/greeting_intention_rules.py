@@ -10,21 +10,17 @@ from app.secrets import PAGE_TOKEN
 from app.bot.constants import *
 from app.bot.reply_generator import ReplyGenerator
 from app.bot.intention_bot import IntentionBot
+from app.bot.rule import Rule, ForceChangeStateException, transition
 
-class GreetingIntentionBot(IntentionBot):
-    def __init__(self, params):
-        super().__init__()
-        self.params = params
+STATE_NEW = 'new'
+STATE_GREETING = 'STATE_GREETING'
 
-    def handle_message(self, msg, sender, state, msgbody):
-        self.bot_send_message(sender, {"text": "您好！我是 AA食物翻譯小幫手～，直接輸入英文或中文都可以唷！"})
+class GreetingIntentionRule(Rule):
 
-
-
-class YouAreWelcomeIntentionBot(IntentionBot):
-    def __init__(self, params):
-        super().__init__()
-        self.params = params
-
-    def handle_message(self, msg, sender, state, msgbody):
-        self.bot_send_message(sender, self.reply_gen.sticker("you are welcome"))
+    @transition(STATE_NEW, {'NLP_decision': STATE_GREETING}, STATE_NEW)
+    def rule_greeting(self, bot, user, msg, **template_params):
+        say = template_params.get('say')
+        if say == 'hi':
+            bot.bot_send_message(user.id, {"text": "您好！我是 AA食物翻譯小幫手～，直接輸入英文或中文都可以唷！"})
+        elif say == 'thanks':
+            bot.bot_send_message(user.id, bot.reply_gen.sticker("you are welcome"))
