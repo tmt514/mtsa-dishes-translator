@@ -11,6 +11,7 @@ class Term(db.Model):
     hit_counts = db.Column(db.Integer)
 
     similars = db.relationship('Similar', foreign_keys='Similar.x_id', backref='term', lazy='dynamic')
+    categories = db.relationship('Category', secondary='termcategories', backref=db.backref('categories', lazy='dynamic'))
 
     #similars = db.relationship('Term', secondary=similars,
     #        primaryjoin=(id==similars.c.x),
@@ -32,6 +33,8 @@ class Similar(db.Model):
     y = db.relationship(Term, foreign_keys=y_id, backref='similar_to')
     
     score = db.Column(db.Float)
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class Location(db.Model):
     """ 記錄附近的商家 """
@@ -64,6 +67,29 @@ class Photo(db.Model):
     
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+    
+
+class Termcategories(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), index=True)
+    term_id = db.Column(db.Integer, db.ForeignKey('term.id'), index=True)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+class Category(db.Model):
+    """ 每一個 term 是什麼東西 """
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), index=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+    parent = db.relationship('Category', foreign_keys=parent_id, uselist=False)
+    terms = db.relationship('Term', secondary='termcategories', backref=db.backref('terms', lazy='dynamic'))
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+    
+
     
 
 
