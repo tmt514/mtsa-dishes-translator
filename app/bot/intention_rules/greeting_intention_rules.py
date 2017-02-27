@@ -24,3 +24,5 @@ class GreetingIntentionRule(Rule):
             bot.bot_send_message(user.id, {"text": "您好！我是 AA食物翻譯小幫手～，直接輸入英文或中文都可以唷！"})
         elif say == 'thanks':
             bot.bot_send_message(user.id, bot.reply_gen.sticker("you are welcome"))
+        else:
+            bot.bot_send_message(user.id, {"text": say})

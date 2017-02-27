@@ -26,7 +26,7 @@ PAYLOAD_MORE = 'PAYLOAD_MORE'
 import enchant
 import mafan
 
-def ask_google_en_to_zh(self, s):
+def ask_google_en_to_zh(s):
     q = s + " wikipedia 中文"
     result = search(q, lang="zh", pause=1.0)
     cnt = 0
@@ -54,12 +54,13 @@ def ask_google_en_to_zh(self, s):
     return None
 
 
-def en_to_zh(self, s):
+def en_to_zh(s):
+    print("s=%s" %  s)
     s = s.lower().strip()
     q = Term.query.filter_by(english=s).order_by(Term.hit_counts.desc()).first()
 
     if q is None:
-        translated = self.ask_google_en_to_zh(s)
+        translated = ask_google_en_to_zh(s)
         return translated
     print("search DB: %s <=> %s [%d]" % (q.english, q.chinese, q.hit_counts or 0))
     return q.chinese
@@ -68,7 +69,8 @@ class EnglishToChineseIntentionRules(Rule):
 
     @transition(STATE_NEW, {'NLP_decision': STATE_ENGLISH_TO_CHINESE}, STATE_ENGLISH_TO_CHINESE_OK)
     def rule_translate_from_english_to_chinese(self, bot, user, msg, **template_params):
-        target = template_params.get('target', msg.get('text', None))
+        target = template_params.get('target', None) or msg.get('text', None)
+        print(target)
         
         user.set_q(target)
 

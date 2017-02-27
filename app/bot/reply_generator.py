@@ -38,24 +38,24 @@ class ReplyGenerator:
                     {
                         "content_type": "text",
                         "title": "正確",
-                        "payload": TMT_CONFIRM_TRANSLATION,
+                        "payload": PAYLOAD_CONFIRM,
                         "image_url": "http://plainicon.com/download-icons/54418/plainicon.com-54418-3652-128px.png"
                     },
                     {
                         "content_type": "text",
                         "title": "校正",
-                        "payload": TMT_FIX_TRANSLATION,
+                        "payload": PAYLOAD_FIX,
                         "image_url": "http://icons.iconarchive.com/icons/handdrawngoods/busy/128/pencil-icon.png"
                     },
                     {
                         "content_type": "text",
                         "title": "取消",
-                        "payload": TMT_CANCEL
+                        "payload": PAYLOAD_CANCEL
                     },
                     {
                         "content_type": "text",
                         "title": "更多",
-                        "payload": TMT_MORE,
+                        "payload": PAYLOAD_MORE,
                         "image_url": "https://image.flaticon.com/icons/png/128/60/60969.png"
                     }
                 ]
@@ -94,17 +94,17 @@ class ReplyGenerator:
                             {
                                 "type": "postback",
                                 "title": "%s 的圖片" % (state.get_q()),
-                                "payload": TMT_PICTURE + ":" + state.get_q(),
+                                "payload": PAYLOAD_PICTURE + ":" + state.get_q(),
                             },
                             {
                                 "type": "postback",
                                 "title": "%s 的食譜" % (state.get_q()),
-                                "payload": TMT_RECIPE + ":" + state.get_q(),
+                                "payload": PAYLOAD_RECIPE + ":" + state.get_q(),
                             },
                             {
                                 "type": "postback",
                                 "title": "%s 在哪裡買得到" % (state.get_q()),
-                                "payload": TMT_WHERE_TO_BUY + ":" + state.get_q(),
+                                "payload": PAYLOAD_WHERE_TO_BUY + ":" + state.get_q(),
                             }
                         ]
                     }

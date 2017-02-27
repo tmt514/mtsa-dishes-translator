@@ -27,7 +27,7 @@ PAYLOAD_MORE = 'PAYLOAD_MORE'
 import enchant
 import mafan
 
-def wiki_zh_to_en(self, s):
+def wiki_zh_to_en(s):
     """ 利用維基百科的頁面跳轉功能找到英文 """
     #""" 利用 google translate 中翻英 """
     #url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-TW&tl=en&dt=t&q=%s" %\
@@ -56,12 +56,12 @@ def wiki_zh_to_en(self, s):
         print("Error: %s" % str(e))
         return None
 
-def zh_to_en(self, s):
+def zh_to_en(s):
     s = mafan.to_traditional(s.strip())
     q = Term.query.filter_by(chinese=s).order_by(Term.hit_counts.desc()).first()
 
     if q is None:
-        tr = self.wiki_zh_to_en(s)
+        tr = wiki_zh_to_en(s)
         return tr
     print("search DB: %s <=> %s [%d]" % (q.english, q.chinese, q.hit_counts or 0))
     return q.english
@@ -70,7 +70,7 @@ class ChineseToEnglishIntentionRule(Rule):
     
     @transition(STATE_NEW, {'NLP_decision': STATE_CHINESE_TO_ENGLISH}, STATE_CHINESE_TO_ENGLISH_OK)
     def rule_translate_from_chinese_to_english(self, bot, user, msg, **template_params):
-        target = template_params.get('target', msg.get('text', None))
+        target = template_params.get('target', None) or msg.get('text', None)
         
         user.set_q(target)
 
@@ -79,8 +79,8 @@ class ChineseToEnglishIntentionRule(Rule):
             bot.bot_send_message(user.id, { "text": "翻譯失敗" })
             raise ForceChangeStateException(STATE_NEW, halt=True) # 強制取消
 
-        bot.set_english(tr)
-        bot.set_chinese(msgtext.strip())
+        user.set_english(tr)
+        user.set_chinese(msgtext.strip())
         bot.bot_send_message(user.id, bot.reply_gen.translated_string(tr))
         
         q = Term.query.filter_by(chinese=msgtext.strip(), english=tr).first()

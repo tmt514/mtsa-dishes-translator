@@ -21,6 +21,5 @@ class NLPTest(AAFoodTestCase):
         
 
         
-
-
-
+    def test_pattern_match(self):
+        target, bot = fetching_target_and_intention_jieba('冷笑話')

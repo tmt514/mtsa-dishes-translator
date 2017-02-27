@@ -1,5 +1,6 @@
 from app.app import app, redis_store
 from app.models import db, Term, Similar
+from app.data import add_data
 import unittest
 
 
@@ -13,9 +14,11 @@ class AAFoodTestCase(unittest.TestCase):
         with app.app_context():
             db.init_app(app)
             db.create_all()
+            add_data(dryrun=False) #TODO: 未來的 DB 從 production 複製過去
             redis_store.init_app(app)
 
     def tearDown(self):
+        # TODO: 未來的 DB 從 production 複製過去
         db.session.remove()
         db.drop_all()
         scan = redis_store.scan_iter()
@@ -35,11 +38,4 @@ class AppTestCase(AAFoodTestCase):
 
     def test_assertion(self):
         assert 10 + 10 == 20
-
-
-    def test_pattern_match(self):
-        from app.bot.intention_detector_utils import fetching_target_and_intention_jieba
-        #target, bot = fetching_target_and_intention_jieba('幫我翻譯 avocado 的中文')
-        target, bot = fetching_target_and_intention_jieba('冷笑話')
-
 

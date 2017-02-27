@@ -16,6 +16,6 @@ class ColdJokeIntentionRule(Rule):
         cnt = Joke.query.filter_by().count()
         q = Joke.query.get(randint(1,cnt))
         content = q.content
-        self.bot_send_message(user.id, {"text": content})
+        bot.bot_send_message(user.id, {"text": content})
         return True
 
