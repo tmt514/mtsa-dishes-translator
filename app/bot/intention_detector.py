@@ -1,8 +1,3 @@
-from app.bot.constants import *
-from app.bot.intention_bot import IntentionBot
-from app.bot.greeting_intention_bot import GreetingIntentionBot
-from app.bot.english_to_chinese_intention_bot import EnglishToChineseIntentionBot
-from app.bot.chinese_to_english_intention_bot import ChineseToEnglishIntentionBot
 from app.bot.intention_detector_utils import *
 
 

@@ -1,9 +1,3 @@
-from app.bot.intention_bot import IntentionBot
-from app.bot.greeting_intention_bot import GreetingIntentionBot, YouAreWelcomeIntentionBot
-from app.bot.cold_joke_intention_bot import ColdJokeIntentionBot
-from app.bot.english_to_chinese_intention_bot import EnglishToChineseIntentionBot
-from app.bot.chinese_to_english_intention_bot import ChineseToEnglishIntentionBot
-
 import jieba
 import jieba.posseg as pseg
 jieba.set_dictionary("app/data/dict.txt.big")
