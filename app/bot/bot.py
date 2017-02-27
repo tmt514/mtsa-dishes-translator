@@ -64,10 +64,13 @@ class Bot:
     def handle_postback(self, msg, sender, payload):
         """ 處理 postback 的函式。 """
         p = re.match(r'([^:]*):(.*)', payload)
-        payload = p.group(1)
-        target = p.group(2)
+        if p is not None:
+            payload = p.group(1)
+            target = p.group(2)
         
-        self.handle_message(msg, sender, {"payload": payload, "target": target})
+            self.handle_message(msg, sender, {"postback": {"payload": payload, "target": target}})
+        else:
+            self.handle_message(msg, sender, {"postback": {"payload": payload}})
 
 
 
