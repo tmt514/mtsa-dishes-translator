@@ -9,6 +9,7 @@ from app.bot.reply_generator import ReplyGenerator
 from app.bot.intention_detector import IntentionDetector
 from app.bot.intention_bot import IntentionBot
 from app.bot.user_status import UserStatus
+from app.bot.state_machine import StateMachine
 
 import re
 class Bot:
@@ -22,6 +23,9 @@ class Bot:
 
         # 讓 Bot 方便使用 sendAPI 做事情用的
         self.intention_bot = IntentionBot()
+
+        # 載入 state machine, 取得 state graph
+        self.state_machine = StateMachine()
 
     def handle_message(self, msg, sender, msgbody):
         """ 處理訊息的函式。
@@ -42,19 +46,22 @@ class Bot:
 
         # 檢查 sender 現在的狀態（回答問題、問問題或是提供反饋）
         # 方法是從暫存的 redis 裡頭取出關於目前這個 sender 的所有資訊
-        state = UserStatus(sender)
+        user = UserStatus(sender)
 
         # 時間間隔太久，一律視為新詢問
-        tdelta = datetime.now() - state.get_last_active()
+        tdelta = datetime.now() - user.get_last_active()
         if tdelta.total_seconds() >= 300:
-            state.set_status('new')
-        state.set_last_active(datetime.now())
+            user.set_status('new')
+        user.set_last_active(datetime.now())
+
+        parsed_msg, template_params = self.intention_detector.parse_msg(user, msgbody)
+        self.state_machine.run(self.intention_bot, user, parsed_msg, **template_params)
 
         # 取得意圖
-        intention_bot = self.intention_detector.get_intention_bot(sender, state, msgbody)
+        # intention_bot = self.intention_detector.get_intention_bot(sender, user, msgbody)
 
         # 處理意圖
-        intention_bot.handle_message(msg, sender, state, msgbody)
+        # intention_bot.handle_message(msg, sender, user, msgbody)
 
 
     def handle_postback(self, msg, sender, payload):
@@ -65,10 +72,10 @@ class Bot:
         target = p.group(2)
         
 
-        print("Handling payload: %s for target=%s" % (payload, target))
-        intention_bot = self.intention_detector.get_postback_intention_bot(sender, state, payload, target)
+        #print("Handling payload: %s for target=%s" % (payload, target))
+        #intention_bot = self.intention_detector.get_postback_intention_bot(sender, state, payload, target)
 
-        intention_bot.handle_message(msg, sender, state, {"payload": payload, "target": target})
+        #intention_bot.handle_message(msg, sender, state, {"payload": payload, "target": target})
 
 
 

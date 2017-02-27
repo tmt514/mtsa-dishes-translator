@@ -2,8 +2,9 @@ from app.app import app
 from app.models import db, Term, Similar
 import unittest
 
-class AppTestCase(unittest.TestCase):
 
+
+class AAFoodTestCase(unittest.TestCase):
     def setUp(self):
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///aafood-test.db'
         app.config['TESTING'] = True
@@ -11,13 +12,13 @@ class AppTestCase(unittest.TestCase):
         with app.app_context():
             db.init_app(app)
             db.create_all()
-            q = len(Term.query.all())
-            print(q)
 
     def tearDown(self):
         db.session.remove()
         db.drop_all()
 
+
+class AppTestCase(AAFoodTestCase):
 
     def test_db_create(self):
         term_a = Term(english='test', chinese='測試')
@@ -26,6 +27,7 @@ class AppTestCase(unittest.TestCase):
         db.session.add(term_b)
         similar = Similar(x=term_a, y=term_b, score=0.8)
         term_a.similars.append(similar)
+        print(len(Term.query.all()))
 
     def test_assertion(self):
         assert 10 + 10 == 20

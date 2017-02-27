@@ -37,11 +37,11 @@ class PatternEnglish(Pattern):
 
 from itertools import compress
 class Template:
-    def __init__(self, s, bot_name, bot_params):
+    def __init__(self, s, suggest_state, **template_params):
         self.model = pseg.cut(s)
         self.s = s
-        self.bot_name = bot_name.strip()
-        self.bot_params = bot_params
+        self.suggest_state = suggest_state.strip()
+        self.template_params = template_params
         # 把空白和標點符號去掉
         self.model = list(filter(lambda x: x.word != ' ' and x.flag[0] != 'w', self.model))
         # 把 target 的索引記下來
@@ -134,8 +134,8 @@ class Template:
         
 
 class TemplateEnglish(Template):
-    def __init__(self, s, bot_name, bot_params):
-        super().__init__(s, bot_name, bot_params)
+    def __init__(self, s, suggest_state, **template_params):
+        super().__init__(s, suggest_state, **template_params)
         self.model = [pseg.pair(word=x[0].strip().lower(), flag=x[1]) for x in nltk.pos_tag(nltk.word_tokenize(s))]
         self.model = list(filter(lambda x: x.word != ' ' and x.flag[0] != '.', self.model))
         self.target_ids = list(compress(range(len(self.model)), [x.word == 'X' for x in self.model]))
@@ -150,9 +150,10 @@ class TargetIntentionExtrator:
         self.all_templates = []
         self.template_file = 'app/data/target_templates'
         self.template_class = Template
+        self.default_template = Template('', 'STATE_CHINESE_TO_ENGLISH')
     
-    def make_template(self, s, bot_name, bot_params={}):
-        return self.template_class(s, bot_name, bot_params)
+    def make_template(self, s, suggest_state, **template_params):
+        return self.template_class(s, suggest_state, **template_params)
 
     def init_template_files(self):
         if self.template_loaded == True:
@@ -163,7 +164,8 @@ class TargetIntentionExtrator:
         for line in f:
             v = line.split(";")
             if len(v) >= 3:
-                self.all_templates.append(self.make_template(v[0], v[1], v[2].split(",")))
+                params = json.loads(";".join(v[2:]))
+                self.all_templates.append(self.make_template(v[0], v[1], **template_params))
             elif len(v) >= 2:
                 self.all_templates.append(self.make_template(v[0], v[1]))
         f.close()
@@ -178,27 +180,17 @@ class TargetIntentionExtrator:
             template.match_pattern(pattern)
         
         if pattern.template == None:
-            return (None, None)
+            pattern.template = self.default_template
 
-        bot_name = pattern.template.bot_name
-        targets = pattern.targets
-        params = pattern.template.bot_params
-        print("[%s]: bot=%s, targets=%s, params=%s" %(self.__class__.__name__, bot_name, str(targets), json.dumps(params)))
 
-        if bot_name == EnglishToChineseIntentionBot.__name__:
-            if len(targets) >= 1:
-                return (targets[0], EnglishToChineseIntentionBot)
-        elif bot_name == ChineseToEnglishIntentionBot.__name__:
-            if len(targets) >= 1:
-                return (targets[0], ChineseToEnglishIntentionBot)
-        elif bot_name == GreetingIntentionBot.__name__:
-            return (params, GreetingIntentionBot)
-        elif bot_name == YouAreWelcomeIntentionBot.__name__:
-            return (params, YouAreWelcomeIntentionBot)
-        elif bot_name == ColdJokeIntentionBot.__name__:
-            return (params, ColdJokeIntentionBot)
+        NLP_decision = pattern.template.suggest_state
+        params = {
+            'target': (pattern.targets[0] if len(pattern.targets) >= 1 else None),
+            'targets': pattern.targets,
+            'params': pattern.template.template_params
+        }
 
-        return (None, None)
+        return (NLP_decision, params)
 
 
 class TargetIntentionExtratorEnglish(TargetIntentionExtrator):
@@ -206,6 +198,7 @@ class TargetIntentionExtratorEnglish(TargetIntentionExtrator):
         super().__init__()
         self.template_file = 'app/data/target_templates_english'
         self.template_class = TemplateEnglish
+        self.default_template = TemplateEnglish('', 'STATE_ENGLISH_TO_CHINESE')
 
 
 fetcher_jieba = TargetIntentionExtrator()

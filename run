@@ -96,7 +96,10 @@ def db_migrate():
 
 def run_tests():
     """ 執行指定測試 """
-    os.system("green -vv app")
+    if len(sys.argv) >= 3:
+        os.system("green -vv " + sys.argv[2])
+    else:
+        os.system("green -vv app")
     #import app.tests.test_app as test_app
     #import unittest
     #suite = unittest.TestLoader().loadTestsFromTestCase(test_app.AppTestCase)

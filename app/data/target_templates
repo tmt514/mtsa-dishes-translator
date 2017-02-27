@@ -7,4 +7,4 @@ X中文;                    EnglishToChineseIntentionBot
 嗨;                       GreetingIntentionBot
 您好;                     GreetingIntentionBot
 唷;                       GreetingIntentionBot
-笑話;                     ColdJokeIntentionBot
+笑話;                     STATE_COLD_JOKE
