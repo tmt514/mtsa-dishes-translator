@@ -1,5 +1,35 @@
 import random
+import json
 from app.bot.constants import *
+
+class ButtonTemplate:
+    def __init__(self, text=""):
+        self.button_list = []
+        self.text = text
+    
+    def add_postback_button(self, title, payload):
+        self.button_list.append({
+            "type": "postback",
+            "title": title,
+            "payload": payload,
+        })
+
+    def set_text(self, s):
+        self.text = s
+
+    def generate(self):
+        return {
+            "attachment": {
+                "type": "template",
+                "payload": {
+                    "template_type": "button",
+                    "text": self.text,
+                    "buttons": self.button_list
+                }
+            }
+        }
+
+
 
 class ReplyGenerator:
     def __init__(self):
@@ -80,33 +110,13 @@ class ReplyGenerator:
         ret['quick_replies'] = self.add_quick_replies()
         return ret
 
-    def ask_more(self, state):
+    def ask_more(self, reply, user, msg, **template_params):
         """ 「想知道更多」的選項 """
 
-        # TODO: 圖片、食譜、哪裡買得到
-        return {
-                "attachment": {
-                    "type": "template",
-                    "payload": {
-                        "template_type": "button",
-                        "text": "您想要知道什麼呢？",
-                        "buttons": [
-                            {
-                                "type": "postback",
-                                "title": "%s 的圖片" % (state.get_q()),
-                                "payload": PAYLOAD_PICTURE + ":" + state.get_q(),
-                            },
-                            {
-                                "type": "postback",
-                                "title": "%s 的食譜" % (state.get_q()),
-                                "payload": PAYLOAD_RECIPE + ":" + state.get_q(),
-                            },
-                            {
-                                "type": "postback",
-                                "title": "%s 在哪裡買得到" % (state.get_q()),
-                                "payload": PAYLOAD_WHERE_TO_BUY + ":" + state.get_q(),
-                            }
-                        ]
-                    }
-                }
-            }
+        reply.set_text("您想要知道什麼呢？")
+        reply.add_postback_button(title="%s 的圖片" % (user.get_q()),
+                                  payload=PAYLOAD_PICTURE + ":" + user.get_q())
+        reply.add_postback_button(title="%s 的食譜" % (user.get_q()),
+                                  payload=PAYLOAD_RECIPE + ":" + user.get_q())
+        reply.add_postback_button(title="%s 哪裡買得到" % (user.get_q()),
+                                  payload=PAYLOAD_WHERE_TO_BUY + ":" + user.get_q())

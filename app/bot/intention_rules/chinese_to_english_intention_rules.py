@@ -18,6 +18,7 @@ STATE_NEW = 'new'
 STATE_CHINESE_TO_ENGLISH = 'STATE_CHINESE_TO_ENGLISH'
 STATE_CHINESE_TO_ENGLISH_OK = 'STATE_CHINESE_TO_ENGLISH_OK'
 STATE_WAIT_FOR_FIX_ENGLISH = 'STATE_WAIT_FOR_FIX_ENGLISH'
+STATE_HANDLE_MORE = 'STATE_HANDLE_MORE'
 
 PAYLOAD_CONFIRM = 'PAYLOAD_CONFIRM'
 PAYLOAD_FIX = 'PAYLOAD_FIX'
@@ -122,7 +123,7 @@ class ChineseToEnglishIntentionRule(Rule):
 
 
         
-    @transition(STATE_CHINESE_TO_ENGLISH_OK, {'quick_reply': {'payload': PAYLOAD_MORE}}, STATE_NEW)
+    @transition(STATE_CHINESE_TO_ENGLISH_OK, {'quick_reply': {'payload': PAYLOAD_MORE}}, STATE_HANDLE_MORE)
     def rule_quick_more(self, bot, user, msg, **template_params):
-        bot.bot_send_message(user.id, bot.reply_gen.ask_more(user))
-        return True
+        # bot.bot_send_message(user.id, bot.reply_gen.ask_more(user))
+        return False

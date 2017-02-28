@@ -17,6 +17,7 @@ STATE_NEW = 'new'
 STATE_ENGLISH_TO_CHINESE = 'STATE_ENGLISH_TO_CHINESE'
 STATE_ENGLISH_TO_CHINESE_OK = 'STATE_ENGLISH_TO_CHINESE_OK'
 STATE_WAIT_FOR_FIX_CHINESE = 'STATE_WAIT_FOR_FIX_CHINESE'
+STATE_HANDLE_MORE = 'STATE_HANDLE_MORE'
 
 PAYLOAD_CONFIRM = 'PAYLOAD_CONFIRM'
 PAYLOAD_FIX = 'PAYLOAD_FIX'
@@ -134,10 +135,11 @@ class EnglishToChineseIntentionRules(Rule):
         bot.bot_send_message(user.id, bot.reply_gen.translated_string("「" + target + "」這樣對嗎？"))
         return True
 
-    @transition(STATE_ENGLISH_TO_CHINESE_OK, {'quick_reply': {'payload': PAYLOAD_MORE}}, STATE_NEW)
+    @transition(STATE_ENGLISH_TO_CHINESE_OK, {'quick_reply': {'payload': PAYLOAD_MORE}}, STATE_HANDLE_MORE)
     def rule_quick_more(self, bot, user, msg, **template_params):
-        bot.bot_send_message(user.id, bot.reply_gen.ask_more(user))
-        return True
+        # bot.bot_send_message(user.id, bot.reply_gen.ask_more(user))
+        # Do not halt
+        return False
 
 
 
