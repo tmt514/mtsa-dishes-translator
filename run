@@ -37,12 +37,12 @@ def db_backup():
     from app.models import db, Term, Photo, Location, User, Joke, Category, Termcategories, Description
     import json
     dumpfile = open('app/data/db_dump', 'w')
-    DB_TABLES = [Term, Photo, Location, User, Joke]
+    DB_TABLES = [Term, Photo, Location, User, Joke, Category, Termcategories, Description]
 
     counter_all = 0
     for Table in DB_TABLES:
         counter_one = 0
-        print("備份 %-10s..." % Table.__name__, end="")
+        print("備份 %-16s..." % Table.__name__, end="")
         for row in Table.query.all():
             d = row.as_dict()
             d['__db'] = Table.__name__
