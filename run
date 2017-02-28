@@ -34,7 +34,7 @@ def db_backup():
 
     # TODO: 其他資料表呢????
 
-    from app.models import db, Term, Photo, Location, User, Joke
+    from app.models import db, Term, Photo, Location, User, Joke, Category, Termcategories, Description
     import json
     dumpfile = open('app/data/db_dump', 'w')
     DB_TABLES = [Term, Photo, Location, User, Joke]
@@ -61,10 +61,10 @@ def db_load(filename='app/data/db_dump'):
     
     # TODO: 其他資料表呢????
 
-    from app.models import db, Term, Photo, Location, User, Joke
+    from app.models import db, Term, Photo, Location, User, Joke, Category, Termcategories, Description
     import json
     dumpfile = open(filename, 'r')
-    DB_TABLES = [Term, Photo, Location, User, Joke]
+    DB_TABLES = [Term, Photo, Location, User, Joke, Category, Termcategories, Description]
     DB_TABLES_DICT = dict(map(lambda Table: (Table.__name__, Table), DB_TABLES))
     # 載入資料
     print("載入資料中...")

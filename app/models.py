@@ -11,14 +11,11 @@ class Term(db.Model):
     hit_counts = db.Column(db.Integer)
 
     similars = db.relationship('Similar', foreign_keys='Similar.x_id', backref='term', lazy='dynamic')
-    categories = db.relationship('Category', secondary='termcategories', backref=db.backref('categories', lazy='dynamic'))
 
     #similars = db.relationship('Term', secondary=similars,
     #        primaryjoin=(id==similars.c.x),
     #        secondaryjoin=(id==similars.c.y),
     #        backref=db.backref('term',lazy='dynamic'))
-
-    photos = db.relationship('Photo', backref='term', lazy='dynamic')
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -48,8 +45,6 @@ class Location(db.Model):
     facebook_url = db.Column(db.Text())
     yelp_url = db.Column(db.Text())
 
-    photos = db.relationship('Photo', backref='location', lazy='dynamic')
-
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -61,10 +56,14 @@ class Photo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     term_id = db.Column(db.Integer, db.ForeignKey('term.id'), index=True)
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'), index=True)
-    user = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-    url = db.Column(db.Text())
-    comment = db.Column(db.Text(), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+    url = db.Column(db.Text)
+    comment = db.Column(db.Text, index=True)
     
+    term = db.relationship('Term', foreign_keys=term_id, backref=db.backref('photos', lazy='dynamic'), uselist=False)
+    location = db.relationship('Location', foreign_keys=location_id, backref=db.backref('photos', lazy='dynamic'), uselist=False)
+    user = db.relationship('User', foreign_keys=user_id, backref=db.backref('photos', lazy='dynamic'), uselist=False)
+
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
     
@@ -83,14 +82,28 @@ class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), index=True)
     parent_id = db.Column(db.Integer, db.ForeignKey('category.id'))
-    parent = db.relationship('Category', foreign_keys=parent_id, uselist=False)
-    terms = db.relationship('Term', secondary='termcategories', backref=db.backref('terms', lazy='dynamic'))
+    children = db.relationship('Category', backref=db.backref('parent', remote_side=[id]))
+    terms = db.relationship('Term', secondary='termcategories', backref=db.backref('categories', lazy='dynamic'))
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
     
 
-    
+class Description(db.Model):
+    """ 對於每一道菜或名詞的描述 """
+    id = db.Column(db.Integer, primary_key=True)
+    subheading = db.Column(db.String(128))
+    content = db.Column(db.Text)
+    term_id = db.Column(db.Integer, db.ForeignKey('term.id'), index=True)
+    location_id = db.Column(db.Integer, db.ForeignKey('location.id'), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+
+    term = db.relationship('Term', foreign_keys=term_id, backref=db.backref('descriptions', lazy='dynamic'), uselist=False)
+    location = db.relationship('Location', foreign_keys=location_id, backref=db.backref('descriptions', lazy='dynamic'), uselist=False)
+    user = db.relationship('User', foreign_keys=user_id, backref=db.backref('descriptions', lazy='dynamic'), uselist=False)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class User(db.Model):
