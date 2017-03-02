@@ -6,8 +6,15 @@ X 的中文;                 STATE_ENGLISH_TO_CHINESE
 X 中文;                   STATE_ENGLISH_TO_CHINESE
 X 的英文;                 STATE_CHINESE_TO_ENGLISH
 X 英文;                   STATE_CHINESE_TO_ENGLISH
+哈囉;                     STATE_GREETING; {"say":"hi"}
+阿囉哈;                   STATE_GREETING; {"say":"hi"}
 嗨;                       STATE_GREETING; {"say":"hi"}
+你好;                     STATE_GREETING; {"say":"hi"}
+你好嗎;                   STATE_GREETING; {"say":"hi"}
 您好;                     STATE_GREETING; {"say":"hi"}
 唷;                       STATE_GREETING; {"say":"hi"}
 謝謝;                     STATE_GREETING; {"say":"thanks"}
+謝謝你;                   STATE_GREETING; {"say":"thanks"}
 笑話;                     STATE_COLD_JOKE
+寶可夢;                   STATE_POKEMON_SEARCH
+神奇寶貝;                 STATE_POKEMON_SEARCH

@@ -2,10 +2,14 @@ What's chinese of X?;                 STATE_ENGLISH_TO_CHINESE
 X chinese;                            STATE_ENGLISH_TO_CHINESE
 please translate X;                   STATE_ENGLISH_TO_CHINESE
 hi;                                   STATE_GREETING; {"say":"hi"}
+hi~;                                  STATE_GREETING; {"say":"hi"}
 hello;                                STATE_GREETING; {"say":"hi"}
+hello~;                               STATE_GREETING; {"say":"hi"}
 helo;                                 STATE_GREETING; {"say":"hi"}
 thank you;                            STATE_GREETING; {"say":"thanks"}
 thanks;                               STATE_GREETING; {"say":"thanks"}
 thanks a lot!;                        STATE_GREETING; {"say":"thanks"}
 appreciated it;                       STATE_GREETING; {"say":"thanks"}
 cold joke;                            STATE_COLD_JOKE
+pokemon;                              STATE_POKEMON_SEARCH
+pkmn;                                 STATE_POKEMON_SEARCH

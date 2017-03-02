@@ -7,6 +7,10 @@
 /aafood-*.json
 /app/data/dict.txt.big
 /app/data/db_dump
+/app/data/pokemon_reverse_index
+/app/data/pokemon_names_mapping
+/app/data/pokemon_doc_freq
+/app/data/pokemon_dir
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -21,7 +21,6 @@ class AAFoodTestCase(unittest.TestCase):
         # TODO: 未來的 DB 從 production 複製過去
         db.session.remove()
         db.drop_all()
-        scan = redis_store.scan_iter()
         redis_store.flushdb()
 
 

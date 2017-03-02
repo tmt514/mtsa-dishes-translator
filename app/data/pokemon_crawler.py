@@ -4,10 +4,6 @@ import re
 import json
 
 
-import jieba
-import jieba.posseg as pseg
-jieba.set_dictionary("app/data/dict.txt.big")
-
 
 class Tag:
     def __init__(self, pair):
@@ -26,14 +22,46 @@ class Tag:
 import math
 from collections import defaultdict
 import pickle
+
+
+def get_all_names():
+    r = requests.get('https://wiki.52poke.com/zh-hant/%E5%AE%9D%E5%8F%AF%E6%A2%A6%E5%88%97%E8%A1%A8%EF%BC%88%E6%8C%89%E5%85%A8%E5%9B%BD%E5%9B%BE%E9%89%B4%E7%BC%96%E5%8F%B7%EF%BC%89/%E7%AE%80%E5%8D%95%E7%89%88')
+    # return r
+
+    soup = BeautifulSoup(r.text, 'lxml')
+    x = soup.find_all('table', 'a-c')
+    y = x[0].find_all('tr')
+    #f = open('pokemon_data', 'a')
+    
+    ret = {}
+    for i in range(3, len(y)):
+        z = y[i].find_all('td')
+        if len(z) == 4:
+            # is pokemon
+            seq = z[0].text.strip() #1
+            chinese = z[1].text.strip() #2 
+            japanese = z[2].text.strip() #3
+            english = z[3].text.strip().lower() #4
+            ret[int(seq[1:])] = english
+
+
+    #blahlafile = open('app/data/pokemon_names_mapping', 'wb')
+    #pickle.dump(ret, blahlafile)
+    #blahlafile.close()
+    return ret
+
+
+
 def tfidf():
     nt = defaultdict(int)
     tfidf = defaultdict(float)
     tlist = defaultdict(list)
+    darklist = defaultdict(list)
     N = 0
     for i in range(1, 802+1):
         N += 1
         f = open('app/data/pokemon_dir/%03d.out' %i, 'r')
+        print("first pass, i=%d" % i)
         for line in f:
             v = line.split(",")
             freq = int(v[0])
@@ -42,8 +70,14 @@ def tfidf():
             tfidf[(i, term)] = 1.0 + math.log(freq)
             nt[term] += 1
         f.close()
+
+
+    pkmnnames = get_all_names()
+
     for i in range(1, 802+1):
         f = open('app/data/pokemon_dir/%03d.out' %i, 'r')
+        print("second pass, i=%d" % i)
+        doclist = []
         for line in f:
             v = line.split(",")
             freq = int(v[0])
@@ -51,15 +85,35 @@ def tfidf():
             # inverse document frequency
             tfidf[(i, term)] *= math.log(N / float(nt[term]))
             tlist[term].append((i, tfidf[(i, term)]))
+            doclist.append((tfidf[(i, term)], term))
             
-            redis_store.set('pkmn:%03d:%s' % (i, term), str(freq))
+            #redis_store.set('pkmn:%03d:%s' % (i, term), str(freq))
+        doclist.sort(reverse=True)
+        doclist = doclist[0:10]
+        darklist[pkmnnames[i]] = doclist
 
-    for term, v in tlist.items():
-        redis_store.set('pkmn:inverse_document_count:%s' %(term), str(nt[term]))
-        redis_store.set('pkmn:term:%s' % (term), pickle.dumps(v))
+    
+    darklistfile = open('app/data/pokemon_doc_freq', 'wb')
+    pickle.dump(darklist, darklistfile)
+    darklistfile.close()
+
+    reverseindex = open('app/data/pokemon_reverse_index', 'wb')
+    pickle.dump(tlist, reverseindex)
+    reverseindex.close()
+
+
+    print("tlist size = %d" % len(tlist))
+    #for term, v in tlist.items():
+        #pass
+        #redis_store.set('pkmn:inverse_document_count:%s' %(term), str(nt[term]))
+        #redis_store.set('pkmn:term:%s' % (term), pickle.dumps(v))
 
     
 
+
+import jieba
+import jieba.posseg as pseg
+jieba.set_dictionary("app/data/dict.txt.big")
 
 import zhon.hanzi
 import string

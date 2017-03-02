@@ -1,7 +1,7 @@
 from app.models import db, Category
 
 
-def add_categories(dryrun=True):
+def add_categories():
     f = open('app/data/categories', 'r')
     for line in f:
         chain = line.split("::")
