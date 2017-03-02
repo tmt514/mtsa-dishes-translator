@@ -1,0 +1,6 @@
+pokemon
+food::ingredient
+food::dish
+ingredient::protein
+ingredient::fresh::vegetable
+
