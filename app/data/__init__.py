@@ -19,9 +19,12 @@ def add_data():
     if Category.query.count() == 0:
         print("\033[1;34mAdding Categories\033[m")
         add_categories()
+        print(Category.query.count())
     if Term.query.filter_by(english='pikachu').first() == None:
         print("\033[1;34mAdding Pokemons\033[m")
         add_pokemons()
+        print(Term.query.count())
     if Joke.query.count() == 0:
         print("\033[1;34mAdding Jokes\033[m")
         add_jokes()
+        print(Joke.query.count())

@@ -2,7 +2,7 @@ from app.models import db, Term, Photo, Description, Category
 
 import json
 
-def add_pokemons(dryrun=True):
+def add_pokemons():
     try:
         pkmn = Category.query.filter_by(name="pokemon").first() or Category(name="pokemon")
         db.session.add(pkmn)
@@ -20,8 +20,7 @@ def add_pokemons(dryrun=True):
                 # print("%s, %s" % (c, e))
 
                 term = Term(english=e, chinese=c, hit_counts=0)
-                if not dryrun:
-                    db.session.add(term)
+                db.session.add(term)
 
             term = Term.query.filter_by(english=e, chinese=c).first()
             photo = Photo.query.filter_by(term=term).first()
@@ -37,8 +36,7 @@ def add_pokemons(dryrun=True):
                     photo.url = "http:" + v['image']
                 else:
                     print("Warning for " + v['seq'] + ": " + v['chinese'])
-                if not dryrun:
-                    db.session.add(photo)
+                db.session.add(photo)
 
             if pkmn not in term.categories.all():
                 term.categories.append(pkmn)
@@ -48,8 +46,7 @@ def add_pokemons(dryrun=True):
                 d = Description.query.filter_by(term=term).first() or Description(term=term, content=desc, subheading="習性")
                 db.session.add(d)
         
-        if not dryrun:
-            db.session.commit()
+        db.session.commit()
     except Exception as e:
         print(e)
         pass
