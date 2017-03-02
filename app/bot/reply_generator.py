@@ -98,7 +98,7 @@ class ReplyGenerator:
         ret['quick_replies'] = self.add_quick_replies()
         return ret
 
-    def image(self, url):
+    def image(self, url, add_qr = True):
         ret = {
             "attachment": {
                 "type": "image",
@@ -107,7 +107,8 @@ class ReplyGenerator:
                 }
             }
         }
-        ret['quick_replies'] = self.add_quick_replies()
+        if add_qr:
+            ret['quick_replies'] = self.add_quick_replies()
         return ret
 
     def ask_more(self, reply, user, msg, **template_params):

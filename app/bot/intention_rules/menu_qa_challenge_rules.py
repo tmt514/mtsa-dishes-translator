@@ -1,11 +1,47 @@
 from app.bot.rule import Rule, ForceChangeStateException, transition
+from app.models import Category 
+import random
 
 STATE_NEW = 'new'
 STATE_QA_CHALLENGE = 'STATE_QA_CHALLENGE'
+STATE_DESCRIBE_CHALLENGE = 'STATE_DESCRIBE_CHALLENGE'
+STATE_DESC_WAIT_RESP = 'STATE_DESCRIBE_WAIT_RESPONSE'
+STATE_CHALLENGES = [STATE_DESCRIBE_CHALLENGE]
+
+def pick_qa_challenge(bot, user, msg, **template_params):
+    challenge_state = state=random.choice(STATE_CHALLENGES)
+    bot.bot_send_message(user.id, {"text": "華麗！酷炫！神奇寶貝描述大挑戰！！"}) 
+    if challenge_state == STATE_DESCRIBE_CHALLENGE: 
+        raise ForceChangeStateException(state=challenge_state, halt=False)
 
 class MenuQAChallengeRules(Rule):
-
-    @transition(STATE_NEW, {'postback':{'payload':STATE_QA_CHALLENGE}}, STATE_NEW)
+    
+    @transition(STATE_NEW, {'postback':{'payload':STATE_QA_CHALLENGE}}, STATE_QA_CHALLENGE)
     def rule_start_qa_challenge(self, bot, user, msg, **template_params):
-        bot.bot_send_message(user.id, {"text": "目前還在施工中，吃個 \U0001F354 休息一下吧～"})
+        #bot.bot_send_message(user.id, {"text": "目前還在施工中，吃個 \U0001F354 休息一下吧～"})
+        pick_qa_challenge(bot, user, msg, **template_params)
         return True
+    
+    @transition(STATE_QA_CHALLENGE, {'text': ''}, STATE_QA_CHALLENGE)
+    def continue_qa_challenge(self, bot, user, msg, **template_params):
+        #TODO: 可能要改rule.py
+        msg['postback'] = {}
+        msg['postback']['payload'] = STATE_QA_CHALLENGE
+        pick_qa_challenge(bot, user, msg, **template_params)
+        return True
+
+    @transition(STATE_DESCRIBE_CHALLENGE, {'postback':{'payload': STATE_QA_CHALLENGE}}, STATE_DESC_WAIT_RESP)
+    def rule_describe_challenge(self, bot, user, msg, **template_params): 
+        c = Category.query.filter_by(name='pokemon').first()
+        pokemon_list = c.terms
+        target_pokemon = random.choice(pokemon_list)
+        bot.bot_send_message(user.id, {"text": "請有創意地描述這個神奇寶貝！"})
+        bot.bot_send_message(user.id, bot.reply_gen.image(target_pokemon.photos.first().url, add_qr=False))
+        return True
+
+    @transition(STATE_DESC_WAIT_RESP, {'text': ''}, STATE_QA_CHALLENGE)
+    def rule_process_describe_response(self, bot, user, msg, **template_params):
+        #TODO: parse msg.text, store Noun, Adj tag
+        #TODO: show most frequence tags (ex/ 紅色的神秘的直升機蘿蔔)
+        bot.bot_send_message(user.id, {"text": "你好棒棒！"})
+        return False
