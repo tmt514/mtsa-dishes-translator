@@ -17,8 +17,6 @@ class Term(db.Model):
     #        secondaryjoin=(id==similars.c.y),
     #        backref=db.backref('term',lazy='dynamic'))
 
-    photos = db.relationship('Photo', backref='term', lazy='dynamic')
-
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
@@ -32,6 +30,8 @@ class Similar(db.Model):
     y = db.relationship(Term, foreign_keys=y_id, backref='similar_to')
     
     score = db.Column(db.Float)
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class Location(db.Model):
     """ 記錄附近的商家 """
@@ -45,8 +45,6 @@ class Location(db.Model):
     facebook_url = db.Column(db.Text())
     yelp_url = db.Column(db.Text())
 
-    photos = db.relationship('Photo', backref='location', lazy='dynamic')
-
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -58,13 +56,54 @@ class Photo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     term_id = db.Column(db.Integer, db.ForeignKey('term.id'), index=True)
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'), index=True)
-    user = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
-    url = db.Column(db.Text())
-    comment = db.Column(db.Text(), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+    url = db.Column(db.Text)
+    comment = db.Column(db.Text, index=True)
     
+    term = db.relationship('Term', foreign_keys=term_id, backref=db.backref('photos', lazy='dynamic'), uselist=False)
+    location = db.relationship('Location', foreign_keys=location_id, backref=db.backref('photos', lazy='dynamic'), uselist=False)
+    user = db.relationship('User', foreign_keys=user_id, backref=db.backref('photos', lazy='dynamic'), uselist=False)
+
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
     
+
+class Termcategories(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), index=True)
+    term_id = db.Column(db.Integer, db.ForeignKey('term.id'), index=True)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+class Category(db.Model):
+    """ 每一個 term 是什麼東西 """
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), index=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+    children = db.relationship('Category', backref=db.backref('parent', remote_side=[id]))
+    terms = db.relationship('Term', secondary='termcategories', backref=db.backref('categories', lazy='dynamic'))
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+    
+
+class Description(db.Model):
+    """ 對於每一道菜或名詞的描述 """
+    id = db.Column(db.Integer, primary_key=True)
+    subheading = db.Column(db.String(128))
+    content = db.Column(db.Text)
+    term_id = db.Column(db.Integer, db.ForeignKey('term.id'), index=True)
+    location_id = db.Column(db.Integer, db.ForeignKey('location.id'), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
+
+    term = db.relationship('Term', foreign_keys=term_id, backref=db.backref('descriptions', lazy='dynamic'), uselist=False)
+    location = db.relationship('Location', foreign_keys=location_id, backref=db.backref('descriptions', lazy='dynamic'), uselist=False)
+    user = db.relationship('User', foreign_keys=user_id, backref=db.backref('descriptions', lazy='dynamic'), uselist=False)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class User(db.Model):

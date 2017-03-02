@@ -1,5 +1,35 @@
 import random
+import json
 from app.bot.constants import *
+
+class ButtonTemplate:
+    def __init__(self, text=""):
+        self.button_list = []
+        self.text = text
+    
+    def add_postback_button(self, title, payload):
+        self.button_list.append({
+            "type": "postback",
+            "title": title,
+            "payload": payload,
+        })
+
+    def set_text(self, s):
+        self.text = s
+
+    def generate(self):
+        return {
+            "attachment": {
+                "type": "template",
+                "payload": {
+                    "template_type": "button",
+                    "text": self.text,
+                    "buttons": self.button_list
+                }
+            }
+        }
+
+
 
 class ReplyGenerator:
     def __init__(self):
@@ -38,24 +68,24 @@ class ReplyGenerator:
                     {
                         "content_type": "text",
                         "title": "正確",
-                        "payload": TMT_CONFIRM_TRANSLATION,
+                        "payload": PAYLOAD_CONFIRM,
                         "image_url": "http://plainicon.com/download-icons/54418/plainicon.com-54418-3652-128px.png"
                     },
                     {
                         "content_type": "text",
                         "title": "校正",
-                        "payload": TMT_FIX_TRANSLATION,
+                        "payload": PAYLOAD_FIX,
                         "image_url": "http://icons.iconarchive.com/icons/handdrawngoods/busy/128/pencil-icon.png"
                     },
                     {
                         "content_type": "text",
                         "title": "取消",
-                        "payload": TMT_CANCEL
+                        "payload": PAYLOAD_CANCEL
                     },
                     {
                         "content_type": "text",
                         "title": "更多",
-                        "payload": TMT_MORE,
+                        "payload": PAYLOAD_MORE,
                         "image_url": "https://image.flaticon.com/icons/png/128/60/60969.png"
                     }
                 ]
@@ -80,33 +110,13 @@ class ReplyGenerator:
         ret['quick_replies'] = self.add_quick_replies()
         return ret
 
-    def ask_more(self, state):
+    def ask_more(self, reply, user, msg, **template_params):
         """ 「想知道更多」的選項 """
 
-        # TODO: 圖片、食譜、哪裡買得到
-        return {
-                "attachment": {
-                    "type": "template",
-                    "payload": {
-                        "template_type": "button",
-                        "text": "您想要知道什麼呢？",
-                        "buttons": [
-                            {
-                                "type": "postback",
-                                "title": "%s 的圖片" % (state.get_q()),
-                                "payload": TMT_PICTURE + ":" + state.get_q(),
-                            },
-                            {
-                                "type": "postback",
-                                "title": "%s 的食譜" % (state.get_q()),
-                                "payload": TMT_RECIPE + ":" + state.get_q(),
-                            },
-                            {
-                                "type": "postback",
-                                "title": "%s 在哪裡買得到" % (state.get_q()),
-                                "payload": TMT_WHERE_TO_BUY + ":" + state.get_q(),
-                            }
-                        ]
-                    }
-                }
-            }
+        reply.set_text("您想要知道什麼呢？")
+        reply.add_postback_button(title="%s 的圖片" % (user.get_q()),
+                                  payload=PAYLOAD_PICTURE + ":" + user.get_q())
+        reply.add_postback_button(title="%s 的食譜" % (user.get_q()),
+                                  payload=PAYLOAD_RECIPE + ":" + user.get_q())
+        reply.add_postback_button(title="%s 哪裡買得到" % (user.get_q()),
+                                  payload=PAYLOAD_WHERE_TO_BUY + ":" + user.get_q())

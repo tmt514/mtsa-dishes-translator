@@ -1,10 +1,13 @@
-請幫我翻譯 X 的中文;      EnglishToChineseIntentionBot
-我想知道 X 是什麼;        EnglishToChineseIntentionBot
-我想知道 X 的中文是什麼;  EnglishToChineseIntentionBot
-請問 X 的中文是什麼;      EnglishToChineseIntentionBot
-X 的中文;                 EnglishToChineseIntentionBot
-X中文;                    EnglishToChineseIntentionBot
-嗨;                       GreetingIntentionBot
-您好;                     GreetingIntentionBot
-唷;                       GreetingIntentionBot
-笑話;                     ColdJokeIntentionBot
+請幫我翻譯 X 的中文;      STATE_ENGLISH_TO_CHINESE
+我想知道 X 是什麼;        STATE_ENGLISH_TO_CHINESE
+我想知道 X 的中文是什麼;  STATE_ENGLISH_TO_CHINESE
+請問 X 的中文是什麼;      STATE_ENGLISH_TO_CHINESE
+X 的中文;                 STATE_ENGLISH_TO_CHINESE
+X 中文;                   STATE_ENGLISH_TO_CHINESE
+X 的英文;                 STATE_CHINESE_TO_ENGLISH
+X 英文;                   STATE_CHINESE_TO_ENGLISH
+嗨;                       STATE_GREETING; {"say":"hi"}
+您好;                     STATE_GREETING; {"say":"hi"}
+唷;                       STATE_GREETING; {"say":"hi"}
+謝謝;                     STATE_GREETING; {"say":"thanks"}
+笑話;                     STATE_COLD_JOKE

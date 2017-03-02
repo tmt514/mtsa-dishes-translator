@@ -3,6 +3,7 @@ import pickle
 from datetime import datetime
 class UserStatus:
     def __init__(self, sender):
+        self.id = sender
         self.__key = "state::user%s" % sender
         self.__state = pickle.loads(
             redis_store.get(self.__key) or
