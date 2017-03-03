@@ -169,6 +169,8 @@ class ReplyGenerator:
         }
         if quick_replies == None:
             ret['quick_replies'] = self.add_quick_replies()
+        elif len(quick_replies) > 0:
+            ret['quick_replies'] = quick_replies
         return ret
 
     def ask_more(self, reply, user, msg, **template_params):
