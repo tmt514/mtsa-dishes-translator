@@ -14,6 +14,7 @@ import mock
 
 
 class BotCallTest(AAFoodTestCase):
+
     @mock.patch.object(IntentionBot, 'bot_sender_action')
     @mock.patch.object(IntentionBot, 'bot_send_message')
     def test_pikachu_description(self, mock_bot_send_message, mock_bot_sender_action):
@@ -27,7 +28,7 @@ class BotCallTest(AAFoodTestCase):
 
     @mock.patch.object(IntentionBot, 'bot_sender_action')
     @mock.patch.object(IntentionBot, 'bot_send_message')
-    def no_test_pikachu_more(self, mock_bot_send_message, mock_bot_sender_action):
+    def test_pikachu_more(self, mock_bot_send_message, mock_bot_sender_action):
         msg = {"message": {"text": "pikachu"}}
         sender = "fake_user"
         msgbody = msg['message']
@@ -48,7 +49,7 @@ class BotCallTest(AAFoodTestCase):
 
     @mock.patch.object(IntentionBot, 'bot_sender_action')
     @mock.patch.object(IntentionBot, 'bot_send_message')
-    def no_test_single_english_to_chinese(self, mock_bot_send_message, mock_bot_sender_action):
+    def test_single_english_to_chinese(self, mock_bot_send_message, mock_bot_sender_action):
         msg = {"message": {"text": "avocado"}}
         sender = "fake_user"
         msgbody = msg['message']
@@ -66,7 +67,7 @@ class BotCallTest(AAFoodTestCase):
 
     @mock.patch.object(IntentionBot, 'bot_sender_action')
     @mock.patch.object(IntentionBot, 'bot_send_message')
-    def no_test_translate_english_to_chinese(self, mock_bot_send_message, mock_bot_sender_action):
+    def test_translate_english_to_chinese(self, mock_bot_send_message, mock_bot_sender_action):
         msg = {"message": {"text": "請問 avocado 的中文是什麼"}}
         sender = "fake_user"
         msgbody = msg['message']
@@ -84,7 +85,7 @@ class BotCallTest(AAFoodTestCase):
 
     @mock.patch.object(IntentionBot, 'bot_sender_action')
     @mock.patch.object(IntentionBot, 'bot_send_message')
-    def no_test_joke(self, mock_bot_send_message, mock_bot_sender_action):
+    def test_joke(self, mock_bot_send_message, mock_bot_sender_action):
         msg = {"message": {"text": "笑話"}}
         sender = "fake_user"
         msgbody = msg['message']

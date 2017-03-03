@@ -1,11 +1,17 @@
 
 from app.models import db, Term, Description
 from app.bot.rule import Rule, ForceChangeStateException, transition
+from app.bot.reply_generator import ListTemplate, ButtonTemplate, GenericTemplate
 
 STATE_NEW = 'new'
 STATE_POKEMON_SEARCH = 'STATE_POKEMON_SEARCH'
+STATE_POKEMON_SEARCH_OK = 'STATE_POKEMON_SEARCH_OK'
+STATE_HANDLE_MORE = 'STATE_HANDLE_MORE'
 PAYLOAD_POKEMON_DESCRIPTION = 'PAYLOAD_POKEMON_DESCRIPTION'
 PAYLOAD_POKEMON_SEARCH = 'PAYLOAD_POKEMON_SEARCH'
+PAYLOAD_RELATED_POKEMON = 'PAYLOAD_RELATED_POKEMON'
+PAYLOAD_MORE = 'PAYLOAD_MORE'
+
 
 
 import pickle
@@ -16,6 +22,22 @@ jieba.set_dictionary('app/data/dict.txt.big')
 from app.data import POKEMON_REVERSE_INDEX, POKEMON_NAMES_MAPPING
 
 from collections import defaultdict
+
+
+
+def compute_docscore(sentence):
+    docscore = defaultdict(float)
+    for pair in sentence:
+        word = pair.word
+        doclist = POKEMON_REVERSE_INDEX.get(word) or []
+        for doc, score in doclist:
+            docscore[doc] += score
+
+    docs = [(v, k) for k, v in docscore.items()]
+    docs.sort(reverse=True)
+    return docs
+
+
 
 class PokemonRules(Rule):
 
@@ -45,22 +67,54 @@ class PokemonRules(Rule):
         bot.bot_send_message(user.id, {"text": "請輸入關鍵字查詢寶可夢～"})
         return True
     
-    @transition(STATE_POKEMON_SEARCH, {'text':''}, STATE_NEW)
+    @transition(STATE_POKEMON_SEARCH, {'text':''}, STATE_POKEMON_SEARCH_OK)
     def rule_pokemon_search(self, bot, user, msg, **template_params):
         sentence = pseg.cut(msg['text'])
-        docscore = defaultdict(float)
-        for pair in sentence:
-            word = pair.word
-            doclist = POKEMON_REVERSE_INDEX.get(word) or []
-            for doc, score in doclist:
-                docscore[doc] += score
+        docs = compute_docscore(sentence)
 
-        docs = [(v, k) for k, v in docscore.items()]
-        docs.sort(reverse=True)
         if len(docs) == 0:
             bot.bot_send_message(user.id, {"text": "對不起，查無資料 QQ"})
-            return True
+            raise ForceChangeStateException(state=STATE_NEW, halt=True)
 
         term = Term.query.filter_by(english=POKEMON_NAMES_MAPPING[docs[0][1]]).first()
-        bot.bot_send_message(user.id, {"text": "%s (%s)" % (term.chinese, term.english)})
+        user.set_q(msg['text'])
+        user.set_english(term.english)
+        user.set_chinese(term.chinese)
+        reply = {"text": "%s (%s)" % (term.chinese, term.english)}
+        reply['quick_replies'] = [
+                bot.reply_gen.make_quick_reply(title="類似寶可夢",
+                    payload=PAYLOAD_RELATED_POKEMON,
+                    image_url="http://emojis.slackmojis.com/emojis/images/1450464069/186/pokeball.png?1450464069"),
+            bot.reply_gen.QUICK_REPLY_MORE,
+            bot.reply_gen.QUICK_REPLY_CANCEL
+        ]
+        bot.bot_send_message(user.id, reply)
         return True
+
+    @transition(STATE_POKEMON_SEARCH_OK, {'quick_reply':{'payload': PAYLOAD_MORE}}, STATE_HANDLE_MORE)
+    def rule_pokemon_more(self, bot, user, msg, **template_params):
+        return False
+
+    @transition(STATE_POKEMON_SEARCH_OK, {'quick_reply':{'payload': PAYLOAD_RELATED_POKEMON}}, STATE_POKEMON_SEARCH_OK)
+    def rule_pokemon_results(self, bot, user, msg, **template_params):
+        sentence = pseg.cut(user.get_q())
+        docs = compute_docscore(sentence)
+
+        reply = GenericTemplate()
+        for i in range(0, min(5, len(docs))):
+            term = Term.query.filter_by(english=POKEMON_NAMES_MAPPING[docs[i][1]]).first()
+            photo = term.photos.first()
+            buttons = ButtonTemplate()
+            buttons.add_postback_button(title="%s的習性" % term.chinese, payload="%s:%d,%s" % (PAYLOAD_POKEMON_DESCRIPTION, term.id, '習性'))
+            kwargs = {
+                "title": term.chinese,
+                "subtitle": term.english,
+                "buttons": buttons.button_list,
+            }
+            if photo is not None:
+                kwargs['image_url'] = photo.url
+            reply.add_element(**kwargs)
+
+        bot.bot_send_message(user.id, reply.generate())
+        return True
+

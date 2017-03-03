@@ -49,10 +49,10 @@ class Bot:
         user = UserStatus(sender)
 
         # 時間間隔太久，一律視為新詢問
-        tdelta = datetime.now() - user.get_last_active()
-        if tdelta.total_seconds() >= 300:
-            user.set_status('new')
-        user.set_last_active(datetime.now())
+        # tdelta = datetime.now() - user.get_last_active()
+        # if tdelta.total_seconds() >= 300:
+        #    user.set_status('new')
+        # user.set_last_active(datetime.now())
 
         # 從送進來的 msg 分析, 作為 input
         parsed_msg, template_params = self.intention_detector.parse_msg(user, msgbody)

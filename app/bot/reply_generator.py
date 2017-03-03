@@ -2,6 +2,50 @@ import random
 import json
 from app.bot.constants import *
 
+
+
+
+class ListTemplate:
+    def __init__(self):
+        self.list_elements = []
+
+    def add_element(self, title, subtitle='', buttons=[], image_url=None, default_action=None):
+        v = {
+            "title": title,
+            "buttons": buttons
+        }
+        if subtitle is not None:
+            v['subtitle'] = subtitle
+        if image_url is not None:
+            v['image_url'] = image_url
+        if default_action is not None:
+            v['default_action'] = default_action
+        self.list_elements.append(v)
+
+    def generate(self):
+        return {
+            "attachment": {
+                "type": "template",
+                "payload": {
+                    "template_type": "list",
+                    "elements": self.list_elements
+                }
+            }
+        }
+
+class GenericTemplate(ListTemplate):
+    def generate(self):
+        return {
+            "attachment": {
+                "type": "template",
+                "payload": {
+                    "template_type": "generic",
+                    "elements": self.list_elements
+                }
+            }
+        }
+
+
 class ButtonTemplate:
     def __init__(self, text=""):
         self.button_list = []
@@ -31,7 +75,31 @@ class ButtonTemplate:
 
 
 
+
 class ReplyGenerator:
+    QUICK_REPLY_CONFIRM = {
+        "content_type": "text",
+        "title": "正確",
+        "payload": PAYLOAD_CONFIRM,
+        "image_url": "http://plainicon.com/download-icons/54418/plainicon.com-54418-3652-128px.png"
+    }
+    QUICK_REPLY_FIX = {
+        "content_type": "text",
+        "title": "校正",
+        "payload": PAYLOAD_FIX,
+        "image_url": "http://icons.iconarchive.com/icons/handdrawngoods/busy/128/pencil-icon.png"
+    }
+    QUICK_REPLY_CANCEL = {
+        "content_type": "text",
+        "title": "取消",
+        "payload": PAYLOAD_CANCEL
+    }
+    QUICK_REPLY_MORE = {
+        "content_type": "text",
+        "title": "更多",
+        "payload": PAYLOAD_MORE,
+        "image_url": "https://image.flaticon.com/icons/png/128/60/60969.png"
+    }
     def __init__(self):
         pass
 
@@ -62,32 +130,24 @@ class ReplyGenerator:
             "text": "：）"
         }
 
+    def make_quick_reply(self, title, payload, image_url=None):
+        reply = {
+            "content_type": "text", 
+            "title": title,
+            "payload": payload,
+        }
+        if image_url is not None:
+            reply['image_url'] = image_url
+        return reply
+
+
     def add_quick_replies(self, value_payloads=None, flags=None):
         # TODO: flags
         return [
-                    {
-                        "content_type": "text",
-                        "title": "正確",
-                        "payload": PAYLOAD_CONFIRM,
-                        "image_url": "http://plainicon.com/download-icons/54418/plainicon.com-54418-3652-128px.png"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "校正",
-                        "payload": PAYLOAD_FIX,
-                        "image_url": "http://icons.iconarchive.com/icons/handdrawngoods/busy/128/pencil-icon.png"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "取消",
-                        "payload": PAYLOAD_CANCEL
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "更多",
-                        "payload": PAYLOAD_MORE,
-                        "image_url": "https://image.flaticon.com/icons/png/128/60/60969.png"
-                    }
+                    QUICK_REPLY_CONFIRM,
+                    QUICK_REPLY_FIX,
+                    QUICK_REPLY_CANCEL,
+                    QUICK_REPLY_MORE
                 ]
 
 
