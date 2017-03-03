@@ -1,7 +1,7 @@
 import mafan
 from app.models import db, Joke
 
-def add_jokes(dryrun=True):
+def add_jokes():
     try:
         f = open("app/data/coldjoke")
         current = 0
@@ -17,5 +17,4 @@ def add_jokes(dryrun=True):
     except:
         pass
 
-    if dryrun == False:
-        db.session.commit()
+    db.session.commit()
