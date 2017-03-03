@@ -87,8 +87,9 @@ class MenuQAChallengeRules(Rule):
 
         my_logger.info(json.dumps([user.id, user.get_q(), msg['text']], ensure_ascii=False))
         my_filelog.flush()
+        term = Term.query.filter_by(english=user.get_q()).first()
 
-        reply = {"text": "你好棒棒！"}
+        reply = {"text": "你好棒棒！這隻叫做 %s（%s）～" % (term.chinese, term.english)}
         reply['quick_replies'] = [
             bot.reply_gen.make_quick_reply(title='下一題！', payload=PAYLOAD_QA_NEXT_CHALLENGE),
             bot.reply_gen.QUICK_REPLY_CANCEL
