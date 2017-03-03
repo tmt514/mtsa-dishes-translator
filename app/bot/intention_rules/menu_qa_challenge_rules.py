@@ -10,6 +10,20 @@ STATE_CHALLENGES = [STATE_DESCRIBE_CHALLENGE]
 PAYLOAD_QA_NEXT_CHALLENGE = 'PAYLOAD_QA_NEXT_CHALLENGE'
 PAYLOAD_CANCEL = 'PAYLOAD_CANCEL'
 
+
+import logging
+import json
+
+def setup_log():
+    logger = logging.getLogger('pokemon')
+    filelog = logging.FileHandler('log/pokemon_qa_challenges.log')
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(filelog)
+    return (filelog, logger)
+
+my_filelog, my_logger = setup_log()
+
+
 def pick_qa_challenge(bot, user, msg, **template_params):
     challenge_state = state=random.choice(STATE_CHALLENGES)
     bot.bot_send_message(user.id, {"text": "華麗！酷炫！神奇寶貝描述大挑戰！！"}) 
@@ -17,6 +31,7 @@ def pick_qa_challenge(bot, user, msg, **template_params):
         raise ForceChangeStateException(state=challenge_state, halt=False)
 
 class MenuQAChallengeRules(Rule):
+
     
     @transition(STATE_NEW, {'postback':{'payload':STATE_QA_CHALLENGE}}, STATE_QA_CHALLENGE)
     def rule_start_qa_challenge(self, bot, user, msg, **template_params):
@@ -36,9 +51,17 @@ class MenuQAChallengeRules(Rule):
     def rule_describe_challenge(self, bot, user, msg, **template_params): 
         c = Category.query.filter_by(name='pokemon').first()
         pokemon_list = c.terms
-        target_pokemon = random.choice(pokemon_list)
+        
+        photo = None
+        target_pokemon = None
+        while photo is None:
+            target_pokemon = random.choice(pokemon_list)
+            photo = target_pokemon.photos.first()
+
+        user.set_q(target_pokemon.english)
+
         bot.bot_send_message(user.id, {"text": "請有創意地描述這個神奇寶貝！"})
-        bot.bot_send_message(user.id, bot.reply_gen.image(target_pokemon.photos.first().url,
+        bot.bot_send_message(user.id, bot.reply_gen.image(photo.url,
             quick_replies=[
                 bot.reply_gen.make_quick_reply(title='跳過此題', payload=PAYLOAD_QA_NEXT_CHALLENGE),
                 bot.reply_gen.QUICK_REPLY_CANCEL
@@ -61,6 +84,9 @@ class MenuQAChallengeRules(Rule):
     def rule_process_describe_response(self, bot, user, msg, **template_params):
         #TODO: parse msg.text, store Noun, Adj tag
         #TODO: show most frequence tags (ex/ 紅色的神秘的直升機蘿蔔)
+
+        my_logger.info(json.dumps([user.id, user.get_q(), msg['text']], ensure_ascii=False))
+        my_filelog.flush()
 
         reply = {"text": "你好棒棒！"}
         reply['quick_replies'] = [
