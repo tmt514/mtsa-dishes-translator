@@ -11,6 +11,8 @@ PAYLOAD_POKEMON_DESCRIPTION = 'PAYLOAD_POKEMON_DESCRIPTION'
 PAYLOAD_POKEMON_SEARCH = 'PAYLOAD_POKEMON_SEARCH'
 PAYLOAD_RELATED_POKEMON = 'PAYLOAD_RELATED_POKEMON'
 PAYLOAD_MORE = 'PAYLOAD_MORE'
+PAYLOAD_CANCEL = 'PAYLOAD_CANCEL'
+PAYLOAD_CONTINUE_POKEMON = 'PAYLOAD_CONTINUE_POKEMON'
 
 
 
@@ -85,14 +87,25 @@ class PokemonRules(Rule):
                 bot.reply_gen.make_quick_reply(title="類似寶可夢",
                     payload=PAYLOAD_RELATED_POKEMON,
                     image_url="http://emojis.slackmojis.com/emojis/images/1450464069/186/pokeball.png?1450464069"),
+            bot.reply_gen.make_quick_reply(title="輸入新的查詢", payload=PAYLOAD_CONTINUE_POKEMON),
             bot.reply_gen.QUICK_REPLY_MORE,
             bot.reply_gen.QUICK_REPLY_CANCEL
         ]
         bot.bot_send_message(user.id, reply)
         return True
 
+    @transition(STATE_POKEMON_SEARCH_OK, {'quick_reply':{'payload': PAYLOAD_CONTINUE_POKEMON}}, STATE_POKEMON_SEARCH)
+    def rule_pokemon_search_continue(self, bot, user, msg, **template_params):
+        bot.bot_send_message(user.id, {"text": "請輸入關鍵字查詢寶可夢～"})
+        return True
+
+    @transition(STATE_POKEMON_SEARCH_OK, {'quick_reply':{'payload': PAYLOAD_CANCEL}}, STATE_NEW)
+    def rule_pokemon_cancel(self, bot, user, msg, **template_params):
+        return True
+
     @transition(STATE_POKEMON_SEARCH_OK, {'quick_reply':{'payload': PAYLOAD_MORE}}, STATE_HANDLE_MORE)
     def rule_pokemon_more(self, bot, user, msg, **template_params):
+        user.set_q(user.get_chinese())
         return False
 
     @transition(STATE_POKEMON_SEARCH_OK, {'quick_reply':{'payload': PAYLOAD_RELATED_POKEMON}}, STATE_POKEMON_SEARCH_OK)
@@ -115,6 +128,11 @@ class PokemonRules(Rule):
                 kwargs['image_url'] = photo.url
             reply.add_element(**kwargs)
 
-        bot.bot_send_message(user.id, reply.generate())
+        reply = reply.generate()
+        reply['quick_replies'] = [
+            bot.reply_gen.make_quick_reply(title="輸入新的查詢", payload=PAYLOAD_CONTINUE_POKEMON),
+            bot.reply_gen.QUICK_REPLY_CANCEL
+        ]
+        bot.bot_send_message(user.id, reply)
         return True
 

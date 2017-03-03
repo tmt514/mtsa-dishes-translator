@@ -40,6 +40,10 @@ class IntentionDetector:
                 payload = payload[0:pos]
                 msgbody['quick_reply']['payload'] = payload
                 msgbody['quick_reply']['target'] = target
+            return (msgbody, params)
+
+        if 'postback' in msgbody:
+            return (msgbody, params)
 
         if 'text' in msgbody:
             is_chinese = self.contains_chinese(msgbody['text'])

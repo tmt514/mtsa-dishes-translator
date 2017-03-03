@@ -7,6 +7,8 @@ STATE_QA_CHALLENGE = 'STATE_QA_CHALLENGE'
 STATE_DESCRIBE_CHALLENGE = 'STATE_DESCRIBE_CHALLENGE'
 STATE_DESC_WAIT_RESP = 'STATE_DESCRIBE_WAIT_RESPONSE'
 STATE_CHALLENGES = [STATE_DESCRIBE_CHALLENGE]
+PAYLOAD_QA_NEXT_CHALLENGE = 'PAYLOAD_QA_NEXT_CHALLENGE'
+PAYLOAD_CANCEL = 'PAYLOAD_CANCEL'
 
 def pick_qa_challenge(bot, user, msg, **template_params):
     challenge_state = state=random.choice(STATE_CHALLENGES)
@@ -36,12 +38,34 @@ class MenuQAChallengeRules(Rule):
         pokemon_list = c.terms
         target_pokemon = random.choice(pokemon_list)
         bot.bot_send_message(user.id, {"text": "請有創意地描述這個神奇寶貝！"})
-        bot.bot_send_message(user.id, bot.reply_gen.image(target_pokemon.photos.first().url, add_qr=False))
+        bot.bot_send_message(user.id, bot.reply_gen.image(target_pokemon.photos.first().url,
+            quick_replies=[
+                bot.reply_gen.make_quick_reply(title='跳過此題', payload=PAYLOAD_QA_NEXT_CHALLENGE),
+                bot.reply_gen.QUICK_REPLY_CANCEL
+                ]))
         return True
 
-    @transition(STATE_DESC_WAIT_RESP, {'text': ''}, STATE_QA_CHALLENGE)
+    @transition(STATE_NEW, {'quick_reply':{'payload': PAYLOAD_QA_NEXT_CHALLENGE}}, STATE_QA_CHALLENGE)
+    def rule_next_challenge_new(self, bot, user, msg, **template_params):
+        return False
+
+    @transition(STATE_DESC_WAIT_RESP, {'quick_reply':{'payload': PAYLOAD_QA_NEXT_CHALLENGE}}, STATE_DESCRIBE_CHALLENGE)
+    def rule_next_challenge(self, bot, user, msg, **template_params):
+        return False
+
+    @transition(STATE_DESC_WAIT_RESP, {'quick_reply':{'payload': PAYLOAD_CANCEL}}, STATE_NEW)
+    def rule_cancel(self, bot, user, msg, **template_params):
+        return True
+
+    @transition(STATE_DESC_WAIT_RESP, {'text': ''}, STATE_NEW)
     def rule_process_describe_response(self, bot, user, msg, **template_params):
         #TODO: parse msg.text, store Noun, Adj tag
         #TODO: show most frequence tags (ex/ 紅色的神秘的直升機蘿蔔)
-        bot.bot_send_message(user.id, {"text": "你好棒棒！"})
-        return False
+
+        reply = {"text": "你好棒棒！"}
+        reply['quick_replies'] = [
+            bot.reply_gen.make_quick_reply(title='下一題！', payload=PAYLOAD_QA_NEXT_CHALLENGE),
+            bot.reply_gen.QUICK_REPLY_CANCEL
+        ]
+        bot.bot_send_message(user.id, reply)
+        return True

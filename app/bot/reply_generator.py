@@ -144,10 +144,10 @@ class ReplyGenerator:
     def add_quick_replies(self, value_payloads=None, flags=None):
         # TODO: flags
         return [
-                    QUICK_REPLY_CONFIRM,
-                    QUICK_REPLY_FIX,
-                    QUICK_REPLY_CANCEL,
-                    QUICK_REPLY_MORE
+                    self.QUICK_REPLY_CONFIRM,
+                    self.QUICK_REPLY_FIX,
+                    self.QUICK_REPLY_CANCEL,
+                    self.QUICK_REPLY_MORE
                 ]
 
 
@@ -158,7 +158,7 @@ class ReplyGenerator:
         ret['quick_replies'] = self.add_quick_replies()
         return ret
 
-    def image(self, url, add_qr = True):
+    def image(self, url, quick_replies=None):
         ret = {
             "attachment": {
                 "type": "image",
@@ -167,7 +167,7 @@ class ReplyGenerator:
                 }
             }
         }
-        if add_qr:
+        if quick_replies == None:
             ret['quick_replies'] = self.add_quick_replies()
         return ret
 
