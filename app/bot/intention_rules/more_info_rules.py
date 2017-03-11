@@ -20,6 +20,7 @@ class MoreInfoRules(Rule):
             bot.bot_send_message(user.id, {"text": "你不能知道更多了...(沒有資料)"})
             return True
 
+
         reply = ButtonTemplate("您想要知道什麼呢？")
 
         categories = term.categories.all()

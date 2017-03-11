@@ -147,15 +147,17 @@ class ReplyGenerator:
                     self.QUICK_REPLY_CONFIRM,
                     self.QUICK_REPLY_FIX,
                     self.QUICK_REPLY_CANCEL,
-                    self.QUICK_REPLY_MORE
                 ]
 
 
-    def translated_string(self, msg):
+    def translated_string(self, msg, quick_replies=None):
         ret = {
                 "text": msg,
             }
-        ret['quick_replies'] = self.add_quick_replies()
+        if quick_replies == None:
+            ret['quick_replies'] = self.add_quick_replies()
+        elif len(quick_replies) > 0:
+            ret['quick_replies'] = quick_replies
         return ret
 
     def image(self, url, quick_replies=None):

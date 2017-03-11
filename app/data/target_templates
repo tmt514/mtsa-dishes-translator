@@ -16,5 +16,6 @@ X 英文;                   STATE_CHINESE_TO_ENGLISH
 謝謝;                     STATE_GREETING; {"say":"thanks"}
 謝謝你;                   STATE_GREETING; {"say":"thanks"}
 笑話;                     STATE_COLD_JOKE
+冷笑話;                   STATE_COLD_JOKE
 寶可夢;                   STATE_POKEMON_SEARCH
 神奇寶貝;                 STATE_POKEMON_SEARCH

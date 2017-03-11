@@ -3,6 +3,7 @@ from app.models import db, Term, Similar
 from app.data import add_data
 import unittest
 import os
+import shutil
 
 
 class AAFoodTestCase(unittest.TestCase):
@@ -13,9 +14,12 @@ class AAFoodTestCase(unittest.TestCase):
         self.app = app.test_client()
         with app.app_context():
             db.init_app(app)
+            if os.path.exists('app/aafood.db') == True:
+                #TODO: 未來的 DB 從 production 複製過去
+                shutil.copyfile('app/aafood.db', 'app/aafood-test.db')
             if os.path.exists("app/aafood-test.db") == False:
                 db.create_all()
-                add_data() #TODO: 未來的 DB 從 production 複製過去
+                add_data()
             redis_store.init_app(app)
 
     def tearDown(self):

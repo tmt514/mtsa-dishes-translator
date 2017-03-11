@@ -1,5 +1,5 @@
 from app.bot.rule import Rule, ForceChangeStateException, transition
-from app.models import Category 
+from app.models import Category, Term
 import random
 
 STATE_NEW = 'new'

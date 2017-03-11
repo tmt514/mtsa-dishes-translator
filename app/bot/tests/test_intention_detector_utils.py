@@ -15,11 +15,14 @@ class NLPTest(AAFoodTestCase):
 
         suggest_state, template_params = fetching_target_and_intention_jieba("嗨")
         print(suggest_state, template_params)
+        assert suggest_state == 'STATE_GREETING'
         
         suggest_state, template_params = fetching_target_and_intention_jieba("謝謝")
         print(suggest_state, template_params)
+        assert suggest_state == 'STATE_GREETING'
         
 
         
     def test_pattern_match(self):
-        target, bot = fetching_target_and_intention_jieba('冷笑話')
+        suggest_state, template_params = fetching_target_and_intention_jieba('冷笑話')
+        assert suggest_state == 'STATE_COLD_JOKE'

@@ -16,6 +16,7 @@ from app.bot.rule import Rule, ForceChangeStateException, transition
 STATE_NEW = 'new'
 STATE_ENGLISH_TO_CHINESE = 'STATE_ENGLISH_TO_CHINESE'
 STATE_ENGLISH_TO_CHINESE_OK = 'STATE_ENGLISH_TO_CHINESE_OK'
+STATE_ENGLISH_TO_CHINESE_QR = 'STATE_ENGLISH_TO_CHINESE_QR'
 STATE_WAIT_FOR_FIX_CHINESE = 'STATE_WAIT_FOR_FIX_CHINESE'
 STATE_HANDLE_MORE = 'STATE_HANDLE_MORE'
 
@@ -68,7 +69,7 @@ def en_to_zh(s):
 
 class EnglishToChineseIntentionRules(Rule):
 
-    @transition(STATE_NEW, {'NLP_decision': STATE_ENGLISH_TO_CHINESE}, STATE_ENGLISH_TO_CHINESE_OK)
+    @transition(STATE_NEW, {'NLP_decision': STATE_ENGLISH_TO_CHINESE}, STATE_ENGLISH_TO_CHINESE_QR)
     def rule_translate_from_english_to_chinese(self, bot, user, msg, **template_params):
         target = template_params.get('target', None) or msg.get('text', None)
         print(target)
@@ -94,14 +95,8 @@ class EnglishToChineseIntentionRules(Rule):
         
         user.set_english(target.strip().lower())
         user.set_chinese(tr)
-        bot.bot_send_message(user.id, bot.reply_gen.translated_string(tr))
-        
-        q = Term.query.filter_by(english=target.strip().lower(), chinese=tr).first()
-
-        # 如果是神奇寶貝 才要放圖片?
-        if q is not None and q.photos.first() is not None:
-            bot.bot_send_message(user.id, bot.reply_gen.image(q.photos.first().url))
-        return True
+        msg['translated_string'] = tr
+        return False
 
     @transition(STATE_ENGLISH_TO_CHINESE_OK, {'quick_reply': {'payload': PAYLOAD_CANCEL}}, STATE_NEW)
     def rule_quick_cancel(self, bot, user, msg, **template_params):
@@ -128,12 +123,13 @@ class EnglishToChineseIntentionRules(Rule):
         bot.bot_send_message(user.id, bot.reply_gen.sticker('thank you'))
         return True
 
-    @transition(STATE_WAIT_FOR_FIX_CHINESE, {'text': ''}, STATE_ENGLISH_TO_CHINESE_OK)
+    @transition(STATE_WAIT_FOR_FIX_CHINESE, {'text': ''}, STATE_ENGLISH_TO_CHINESE_QR)
     def rule_handle_fix(self, bot, user, msg, **template_params):
         target = msg['text'].strip()
         user.set_chinese(target)
-        bot.bot_send_message(user.id, bot.reply_gen.translated_string("「" + target + "」這樣對嗎？"))
-        return True
+        msg['translated_string'] = "「" + target + "」這樣對嗎？"
+        # bot.bot_send_message(user.id, bot.reply_gen.translated_string("「" + target + "」這樣對嗎？"))
+        return False
 
     @transition(STATE_ENGLISH_TO_CHINESE_OK, {'quick_reply': {'payload': PAYLOAD_MORE}}, STATE_HANDLE_MORE)
     def rule_quick_more(self, bot, user, msg, **template_params):

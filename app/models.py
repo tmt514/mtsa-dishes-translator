@@ -40,6 +40,7 @@ class Location(db.Model):
     phone = db.Column(db.String(128))
     address = db.Column(db.Text())
     open_hours = db.Column(db.Text()) # 是一個 structure, 描述每天什麼時候開門
+    yelp_id = db.Column(db.Text(), index=True)
 
     website_url = db.Column(db.Text())
     facebook_url = db.Column(db.Text())

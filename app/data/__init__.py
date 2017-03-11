@@ -2,9 +2,10 @@ from .parsepokemon import add_pokemons
 from .parsejokes import add_jokes
 from .parsecategories import add_categories
 
-from app.models import db, Category, Term, Photo, Joke
+from app.models import db, Term, Photo, Location, User, Joke, Category, Termcategories, Description
 import os
 import pickle
+import json
 
 if os.path.exists('app/data/pokemon_names_mapping') == False:
     print("\033[1;34mDownloading Pokemon Data\033[m")
