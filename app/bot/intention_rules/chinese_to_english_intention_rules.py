@@ -113,12 +113,13 @@ class ChineseToEnglishIntentionRule(Rule):
         return True
     
 
-    @transition(STATE_WAIT_FOR_FIX_ENGLISH, {'text':''}, STATE_CHINESE_TO_ENGLISH_QR)
+    @transition(STATE_WAIT_FOR_FIX_ENGLISH, {'text':''}, STATE_CHINESE_TO_ENGLISH_OK)
     def rule_handle_fix(self, bot, user, msg, **template_params):
         target = msg['text'].strip()
         user.set_english(target.lower())
         msg['translated_string'] = "\"" + target + "\" 這樣對嗎？"
-        return False
+        bot.bot_send_message(user.id, bot.reply_gen.translated_string("\"" + target + "\" 這樣對嗎？"))
+        return True
 
 
         

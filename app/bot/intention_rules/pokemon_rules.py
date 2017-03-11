@@ -13,6 +13,7 @@ PAYLOAD_RELATED_POKEMON = 'PAYLOAD_RELATED_POKEMON'
 PAYLOAD_MORE = 'PAYLOAD_MORE'
 PAYLOAD_CANCEL = 'PAYLOAD_CANCEL'
 PAYLOAD_CONTINUE_POKEMON = 'PAYLOAD_CONTINUE_POKEMON'
+PAYLOAD_POKEMON_INFO = 'PAYLOAD_POKEMON_INFO'
 
 
 
@@ -42,6 +43,35 @@ def compute_docscore(sentence):
 
 
 class PokemonRules(Rule):
+
+    @transition(STATE_NEW, {'quick_reply': {'payload': PAYLOAD_POKEMON_INFO}}, STATE_NEW)
+    def rule_pokemon_info(self, bot, user, msg, **template_params):
+        target = msg['quick_reply'].get('target')
+        if not target:
+            return True
+        term = Term.query.filter_by(english=target).first()
+        reply = GenericTemplate(image_aspect_ratio="square")
+        photo = term.photos.first()
+        buttons = ButtonTemplate()
+        buttons.add_postback_button(title="%s的習性" % term.chinese, payload="%s:%d,%s" % (PAYLOAD_POKEMON_DESCRIPTION, term.id, '習性'))
+        kwargs = {
+            "title": term.chinese,
+            "subtitle": term.english,
+            "buttons": buttons.button_list,
+            "default_action": {
+                "type": "web_url",
+                "url": "https://wiki.52poke.com/zh-hant/%s" % term.chinese,
+            }
+        }
+        if photo is not None:
+            kwargs['image_url'] = photo.url
+        reply.add_element(**kwargs)
+        reply = reply.generate()
+        reply['quick_replies'] = [
+            bot.reply_gen.QUICK_REPLY_CANCEL
+        ]
+        bot.bot_send_message(user.id, reply)
+        return True
 
     @transition(STATE_NEW, {'postback': {'payload': PAYLOAD_POKEMON_DESCRIPTION}}, STATE_NEW)
     def rule_pokemon_description(self, bot, user, msg, **template_params):

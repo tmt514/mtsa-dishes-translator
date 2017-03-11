@@ -123,13 +123,13 @@ class EnglishToChineseIntentionRules(Rule):
         bot.bot_send_message(user.id, bot.reply_gen.sticker('thank you'))
         return True
 
-    @transition(STATE_WAIT_FOR_FIX_CHINESE, {'text': ''}, STATE_ENGLISH_TO_CHINESE_QR)
+    @transition(STATE_WAIT_FOR_FIX_CHINESE, {'text': ''}, STATE_ENGLISH_TO_CHINESE_OK)
     def rule_handle_fix(self, bot, user, msg, **template_params):
         target = msg['text'].strip()
         user.set_chinese(target)
         msg['translated_string'] = "「" + target + "」這樣對嗎？"
-        # bot.bot_send_message(user.id, bot.reply_gen.translated_string("「" + target + "」這樣對嗎？"))
-        return False
+        bot.bot_send_message(user.id, bot.reply_gen.translated_string("「" + target + "」這樣對嗎？"))
+        return True
 
     @transition(STATE_ENGLISH_TO_CHINESE_OK, {'quick_reply': {'payload': PAYLOAD_MORE}}, STATE_HANDLE_MORE)
     def rule_quick_more(self, bot, user, msg, **template_params):

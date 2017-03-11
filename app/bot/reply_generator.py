@@ -6,8 +6,9 @@ from app.bot.constants import *
 
 
 class ListTemplate:
-    def __init__(self):
+    def __init__(self, image_aspect_ratio='horizontal'):
         self.list_elements = []
+        self.image_aspect_ratio = image_aspect_ratio
 
     def add_element(self, title, subtitle=None, buttons=[], image_url=None, default_action=None):
         v = {
@@ -29,19 +30,24 @@ class ListTemplate:
                 "type": "template",
                 "payload": {
                     "template_type": "list",
-                    "elements": self.list_elements
+                    "elements": self.list_elements,
+                    "image_aspect_ratio": self.image_aspect_ratio
                 }
             }
         }
 
 class GenericTemplate(ListTemplate):
+    def __init__(self, image_aspect_ratio='horizontal'):
+        super().__init__(image_aspect_ratio)
+
     def generate(self):
         return {
             "attachment": {
                 "type": "template",
                 "payload": {
                     "template_type": "generic",
-                    "elements": self.list_elements
+                    "elements": self.list_elements,
+                    "image_aspect_ratio": self.image_aspect_ratio
                 }
             }
         }
