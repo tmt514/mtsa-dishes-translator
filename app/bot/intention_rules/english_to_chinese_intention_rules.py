@@ -84,7 +84,7 @@ class EnglishToChineseIntentionRules(Rule):
             d = enchant.Dict("en_US")
             suggested = d.suggest(target.strip().lower())
             for term in suggested:
-                tr = self.en_to_zh(term)
+                tr = en_to_zh(term)
                 if tr is not None:
                     target = term
                     bot.bot_send_message(user.id, { "text": "改成搜尋 \"%s\"" % term })

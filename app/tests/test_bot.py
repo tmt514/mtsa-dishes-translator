@@ -14,6 +14,17 @@ import mock
 
 
 class BotCallTest(AAFoodTestCase):
+    
+    @mock.patch.object(IntentionBot, 'bot_sender_action')
+    @mock.patch.object(IntentionBot, 'bot_send_message')
+    def test_asian_legend(self, mock_bot_send_message, mock_bot_sender_action):
+        msg = {'message': {'text': "老地方"}}
+        sender = "fake_user"
+        msgbody = msg['message']
+
+        # 真正跑測試的地方~
+        celery_handle_message(msg, sender, msgbody)
+        print("\033[0;32m%s\033[m" % json.dumps(mock_bot_send_message.call_args_list, indent=4, sort_keys=True, ensure_ascii=False))
 
     @mock.patch.object(IntentionBot, 'bot_sender_action')
     @mock.patch.object(IntentionBot, 'bot_send_message')

@@ -9,11 +9,12 @@ class ListTemplate:
     def __init__(self):
         self.list_elements = []
 
-    def add_element(self, title, subtitle='', buttons=[], image_url=None, default_action=None):
+    def add_element(self, title, subtitle=None, buttons=[], image_url=None, default_action=None):
         v = {
             "title": title,
-            "buttons": buttons
         }
+        if len(buttons) > 0:
+            v['buttons'] = buttons
         if subtitle is not None:
             v['subtitle'] = subtitle
         if image_url is not None:

@@ -1,5 +1,7 @@
 from app.bot.rule import Rule, ForceChangeStateException, transition
 from app.models import db, Term, Photo, Location
+from app.bot.reply_generator import GenericTemplate
+from app.api.yelp import yelp
 
 STATE_ENGLISH_TO_CHINESE_OK = 'STATE_ENGLISH_TO_CHINESE_OK'
 STATE_ENGLISH_TO_CHINESE_QR = 'STATE_ENGLISH_TO_CHINESE_QR'
@@ -15,6 +17,45 @@ def handle_qr_adjustment(bot, user, msg, **template_params):
     tr = msg['translated_string']
     term = Term.query.filter_by(english=e, chinese=c).first()
     qr = []
+
+    #########################################################
+    ### Location
+    #########################################################
+    # 只是查店名而已，跟翻譯沒有什麼關係
+    location = Location.query.filter(Location.name.ilike(e)).first()
+    if location is not None and location.yelp_url is not None:
+        reply = GenericTemplate()
+        photo = location.photos.first()
+        image_url = None
+        if photo is not None:
+            image_url = photo.url
+        sub = None
+        if term is not None:
+            sub = c
+        
+        reply.add_element(title=location.name, subtitle=sub, default_action={"type":"web_url", "url":location.yelp_url}, image_url=image_url)
+        reply = reply.generate()
+
+        reply['quick_replies'] = bot.reply_gen.add_quick_replies()
+
+        bot.bot_send_message(user.id, reply)
+        return
+    
+
+    # 偷偷問 Yelp 去找資料哈哈
+    # 正式上線一定要拿掉，不然會太慢!!!!
+    if location is None and term is None:
+        yelp.search_business(e)
+
+
+    #    qr.append(bot.reply_gen.make_quick_reply(
+    #        title=c,
+    #        payload="PAYLOAD_LOCATION_INFO:%s" % location.id,
+    #        image_url="http://i.imgur.com/nliGPVc.png"))
+
+    
+
+
 
     if term == None:
         bot.bot_send_message(user.id, bot.reply_gen.translated_string(tr))
@@ -39,6 +80,7 @@ def handle_qr_adjustment(bot, user, msg, **template_params):
     #########################################################
     # 檢查這個 Term 是不是個 Location
     # 以後資料齊全以後可以把這個刪掉，或改為 offline
+    
 
     # 如果有 category, 那麼可以取得更多資訊
     if term.categories.count() > 0:
