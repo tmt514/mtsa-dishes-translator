@@ -13,3 +13,4 @@ appreciated it;                       STATE_GREETING; {"say":"thanks"}
 cold joke;                            STATE_COLD_JOKE
 pokemon;                              STATE_POKEMON_SEARCH
 pkmn;                                 STATE_POKEMON_SEARCH
+pokemongo;                            STATE_POKEMONGO_MENU
