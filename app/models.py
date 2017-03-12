@@ -124,3 +124,14 @@ class Joke(db.Model):
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+class PokemonRecord(db.Model):
+    # A record with time and geolocation of a report of a Pokemon sighting
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128))
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
+    submit_on = db.Column(db.DateTime, default=func.now())
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}

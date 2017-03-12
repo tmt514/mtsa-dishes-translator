@@ -31,7 +31,8 @@ PAYLOAD_POKEMONGO_REPORT = "PAYLOAD_POKEMONGO_REPORT"
 PAYLOAD_POKEMONGO_FIND = "PAYLOAD_POKEMONGO_FIND"
 STATE_POKEMONGO_MENU = "STATE_POKEMONGO_MENU"
 
-
+PAYLOAD_POKEMONGO_REPORT_WAIT_INPUT = "PAYLOAD_POKEMONGO_REPORT_WAIT_INPUT"
+PAYLOAD_POKEMONGO_REPORT_GET_INPUT = "PAYLOAD_POKEMONGO_REPORT_GET_INPUT"
 
 class PokemongoMenuRules(Rule):
 
@@ -53,4 +54,33 @@ class PokemongoMenuRules(Rule):
         
         return True
 
+    @transition(STATE_NEW, {'postback': {'payload': PAYLOAD_POKEMONGO_REPORT}}, PAYLOAD_POKEMONGO_REPORT_WAIT_INPUT)
+    def rule_pokemon_report(self, bot, user, msg, **template_params):
 
+        #reply = ButtonTemplate("請輸入Pokemon的名字:")
+        
+        reply = {"text":"hello, world!"}
+        
+        
+        bot.bot_send_message(user.id, reply)
+        
+        return True
+
+    @transition(PAYLOAD_POKEMONGO_REPORT_WAIT_INPUT, {'text': ''}, PAYLOAD_POKEMONGO_REPORT_GET_INPUT)
+    def rule_pokemon_report(self, bot, user, msg, **template_params):
+        
+        # shcould check whether the name exist
+        target = msg.get('text')
+
+        pR = PokemonRecord(name = target, query_type = 'definition', query_date = dt, ip_address = ip)
+        
+        # oh, I have to save the name
+        # and then wait for the next run for user to submit their location.
+        # and then insert it into the database.
+        
+        reply = {"text":"hello, world!"}
+        
+        
+        bot.bot_send_message(user.id, reply)
+        
+        return True
