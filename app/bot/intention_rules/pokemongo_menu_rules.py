@@ -37,15 +37,8 @@ class PokemongoMenuRules(Rule):
 
     @transition(STATE_NEW, {'NLP_decision': STATE_POKEMONGO_MENU}, STATE_NEW)
     def rule_pokemongo_menu(self, bot, user, msg, **template_params):
-
-        target = msg['quick_reply'].get('target')
-
-        if not target:
-            return True
         
-        term = Term.query.filter_by(english=target).first()
         reply = ButtonTemplate("你想要對Pokemon做什麼？")
-
 
         reply.add_postback_button(title="我要Report一隻Pokemon", payload="%s" % (PAYLOAD_POKEMONGO_REPORT))
         reply.add_postback_button(title="我想找Pokemon", payload="%s" % (PAYLOAD_POKEMONGO_FIND))
