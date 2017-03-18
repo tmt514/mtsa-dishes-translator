@@ -102,6 +102,17 @@ def run_tests():
     #unittest.TextTestRunner(verbosity=2).run(suite)
     
 
+package_list = [
+        "flask", "flask_sqlalchemy",
+        "pyenchant", "jieba",
+        "flask_redis", "flask_celery"
+    ]
+def install():
+    for pkg in package_list:
+        os.system("pip3 install " + pkg)
+    if os.path.exists("app/aafood.db") == False:
+        db_reset()
+
 
 
 
@@ -134,6 +145,10 @@ if sys.argv[1] == 'backup' or sys.argv[1] == 'db_backup':
 
 if sys.argv[1] == 'db_load':
     db_load()
+    sys.exit(0)
+
+if sys.argv[1] == 'install':
+    install()
     sys.exit(0)
 
 

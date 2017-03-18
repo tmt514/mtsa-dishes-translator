@@ -38,7 +38,7 @@ def handle_qr_adjustment(bot, user, msg, **template_params):
 
     
     if term == None:
-        bot.bot_send_message(user.id, bot.reply_gen.translated_string(tr))
+        bot.bot_send_message(user.id, bot.reply_gen.translated_string(tr, qr))
         return
 
     #########################################################

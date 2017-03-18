@@ -13,6 +13,9 @@ if os.path.exists('app/data/pokemon_names_mapping') == False:
     os.system("wget \"https://drive.google.com/uc?id=0BzTEEqZlZigxVGZhQ0pEeFNkN1E&export=download\" -O app/data/pokemon_reverse_index")
     os.system("wget \"https://drive.google.com/uc?id=0BzTEEqZlZigxbE90eHFmUDY0VEE&export=download\" -O app/data/pokemon_doc_freq")
 
+if os.path.exists('app/data/dict.txt.big') == False:
+    os.system("wget \"https://raw.githubusercontent.com/fxsjy/jiebademo/master/jiebademo/jieba/dict.txt.big\" -O app/data/dict.txt.big")
+
 POKEMON_REVERSE_INDEX = pickle.load(open('app/data/pokemon_reverse_index', 'rb'))
 POKEMON_NAMES_MAPPING = pickle.load(open('app/data/pokemon_names_mapping', 'rb'))
 
