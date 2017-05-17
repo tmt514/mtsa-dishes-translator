@@ -90,6 +90,10 @@ def db_migrate():
     db_load()
 
 
+def app_data_import():
+    import app.data
+    app.data.add_data()
+
 def run_tests():
     """ 執行指定測試 """
     if len(sys.argv) >= 3:
@@ -130,6 +134,8 @@ if sys.argv[1] == 'db_migrate':
 
 # 執行 Celery Instance
 if sys.argv[1] == 'celery':
+    app_data_import()
+    print("app data import successfully")
     os.system("celery -A app.celery worker")
     sys.exit(0)
 
